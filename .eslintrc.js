@@ -1,10 +1,12 @@
-{
+module.export = {
   "extends": [
     "react-app",
     "airbnb-typescript"
   ],
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": __dirname,
+    "sourceType": "module"
   },
   "rules": {
     "react/jsx-filename-extension": [

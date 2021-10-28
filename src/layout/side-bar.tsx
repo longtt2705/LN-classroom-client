@@ -1,66 +1,68 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
+import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Box } from '@mui/system';
+import { Link } from 'react-router-dom';
+
+const drawerWidth = 240;
+
+const SidebarLabel = styled(Typography)(({ theme }) => ({
+    fontWeight: 'bold',
+    fontSize: theme.fontSizes.default,
+    color: theme.colors.texting.sideBarLabel,
+    padding: theme.spacing(0, 4),
+    marginTop: theme.spacing(4)
+}));
+
+const StyledListItemText = styled(Typography)(({ theme }) => ({
+    color: theme.colors.texting.sideBarLabel,
+    fontWeight: 500,
+    fontSize: theme.fontSizes.default,
+}));
 
 export default function SideBar() {
-  const [isOpen, setOpen] = React.useState(true);
-
-  const toggleDrawer =
-    (open: boolean) =>
-      (event: React.KeyboardEvent | React.MouseEvent) => {
-        if (
-          event.type === 'keydown' &&
-          ((event as React.KeyboardEvent).key === 'Tab' ||
-            (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-          return;
-        }
-
-        setOpen(open);
-      };
-
-  const list = () => (
-    <Box>
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-
-  return (
-    <div>
-      <Drawer
-        anchor={'left'}
-        open={isOpen}
-        onClose={toggleDrawer(false)}
-      >
-        {list()}
-      </Drawer>
-    </div>
-  );
+    return (
+        <Drawer
+            variant="permanent"
+            sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+            }}
+        >
+            <Toolbar />
+            <SidebarLabel > Home </SidebarLabel>
+            <Box sx={{ overflow: 'auto' }}>
+                <List>
+                    <ListItem component={Link} to="/">
+                        <ListItemIcon>
+                            <HomeOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            disableTypography
+                            primary={<StyledListItemText>Home</StyledListItemText>} />
+                    </ListItem>
+                    <ListItem component={Link} to="/explore">
+                        <ListItemIcon>
+                            <ExploreOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            disableTypography
+                            primary={<StyledListItemText>Explore</StyledListItemText>} />
+                    </ListItem>
+                </List>
+                <Divider />
+                <List>
+                    {['All mail', 'Trash', 'Spam'].map((text, index) => (
+                        <ListItem button key={text}>
+                            <ListItemIcon>
+                            </ListItemIcon>
+                            <ListItemText primary={text} />
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+        </Drawer>
+    );
 }

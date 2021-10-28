@@ -5,24 +5,31 @@ import Layout from './layout';
 import theme from './themes';
 import {
   BrowserRouter as Router,
-  Route,
+  Route
 } from "react-router-dom";
-import Home from './core/home';
-import Explore from './core/explore';
+import ListRouter from "./app/routes"
+import { Provider } from 'react-redux';
+import store from './app/store';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <ThemeProvider theme={theme}>
-        <Layout>
-          <Route exact path="/">
-            <Home />
-          </Route>
-          <Route path="/explore">
-            <Explore />
-          </Route>
-        </Layout>
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>
+          <Layout>
+            {ListRouter.map((route, index) => (
+              <Route
+                key={index}
+                exact={route.exactPath}
+                path={route.path}
+                render={() => (
+                  <route.component />
+                )}
+              />
+            ))}
+          </Layout>
+        </ThemeProvider>
+      </Provider>
     </Router>
   </React.StrictMode>,
   document.getElementById('root'),

@@ -8,7 +8,7 @@ import { ReactElement } from 'react';
 
 
 interface LayoutProps {
-  children: ReactElement<any, any>[]
+  children: any
 }
 
 const Layout: React.FunctionComponent<LayoutProps> = ({ children }) => {

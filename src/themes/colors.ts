@@ -1,5 +1,5 @@
 export interface Colors {
-    theme: {
+    background: {
         primary: string
     },
     texting: {
@@ -8,7 +8,7 @@ export interface Colors {
 }
 
 const colors = {
-    theme: {
+    background: {
         primary: '#282828'
     },
     texting: {

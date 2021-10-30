@@ -3,12 +3,11 @@ import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { RouteName } from '../app/routes';
-import { selectRoute } from '../reducers/route-slice';
+import RouteList from '../app/routes';
 
 const drawerWidth = 240;
 
-const SidebarLabel = styled(Typography)(({ theme }) => ({
+const SidebarLabel = styled(Typography)(({ theme, }) => ({
     fontWeight: 'bold',
     fontSize: theme.fontSizes.default,
     color: theme.colors.texting.sideBarLabel,
@@ -25,12 +24,7 @@ const StyledListItemText = styled(Typography)<{ isSelected: boolean }>(({ theme,
 
 
 export default function SideBar() {
-    const routeList = useAppSelector((state) => state.routeReducer.data)
-    const dispatch = useAppDispatch();
-
-    const handleSelectRoute = (routeName: RouteName) => {
-        dispatch(selectRoute(routeName));
-    }
+    const currentSelected = useAppSelector((state) => state.routeReducer.currentSelected)
 
     return (
         <Drawer
@@ -45,21 +39,20 @@ export default function SideBar() {
             <Box sx={{ overflow: 'auto' }} >
                 <List>
                     <SidebarLabel > General </SidebarLabel>
-                    {routeList.map((route, index) => (
+                    {RouteList.map((route, index) => (
                         <ListItem
                             key={index}
                             button
                             component={Link}
                             to={route.path}
-                            selected={route.isSelected}
-                            onClick={() => handleSelectRoute(route.name)}
+                            selected={currentSelected === index}
                         >
                             <ListItemIcon>
-                                {route.isSelected ? <route.selectedIcon /> : <route.unselectedIcon />}
+                                {currentSelected === index ? <route.selectedIcon /> : <route.unselectedIcon />}
                             </ListItemIcon>
                             <ListItemText
                                 disableTypography
-                                primary={<StyledListItemText isSelected={route.isSelected}>
+                                primary={<StyledListItemText isSelected={currentSelected === index}>
                                     {route.name}
                                 </StyledListItemText>} />
                         </ListItem>

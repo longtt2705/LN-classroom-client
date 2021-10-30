@@ -15,7 +15,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
-import { Button, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -45,15 +45,13 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
   },
 }));
 
@@ -157,7 +155,7 @@ export default function PrimarySearchAppBar() {
   );
 
   return (
-    <Box sx={{ flexGrow: 1, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <Box sx={{ flexGrow: 0, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <AppBar position="fixed" sx={{ backgroundColor: ({ colors }) => colors.background.primary }}>
         <Toolbar>
           <IconButton
@@ -187,7 +185,7 @@ export default function PrimarySearchAppBar() {
               style={{ width: "100%" }}
             >
               <Grid item style={{ width: "40%" }}>
-                <Search>
+                <Search sx={{ flexGrow: 1 }}>
                   <SearchIconWrapper>
                     <SearchIcon />
                   </SearchIconWrapper>

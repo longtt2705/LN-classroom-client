@@ -23,7 +23,7 @@ ReactDOM.render(
                 exact={route.exactPath}
                 path={route.path}
                 render={() => (
-                  <route.component />
+                  <route.component name={route.name} />
                 )}
               />
             ))}

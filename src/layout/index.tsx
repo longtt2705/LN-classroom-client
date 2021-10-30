@@ -13,11 +13,10 @@ interface LayoutProps {
 
 const Layout: React.FunctionComponent<LayoutProps> = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
+    <Box sx={{ display: 'flex', minHeight: '80vh' }}>
       <AppBar />
       <SideBar />
-      <Box component="main" sx={{ flexGrow: 1, p: (theme) => theme.spacing(1) }}>
+      <Box component="main" sx={{ flexGrow: 1, margin: (theme) => theme.spacing(1) }}>
         <Toolbar />
         <Switch>
           {children}

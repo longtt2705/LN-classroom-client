@@ -2,7 +2,6 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:8081",
   "dependencies": {
     "@mui/icons-material": "^5.0.4",
     "@mui/material": "^5.0.4",

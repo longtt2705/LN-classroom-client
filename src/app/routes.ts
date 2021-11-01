@@ -12,7 +12,6 @@ export interface IRoute {
     exactPath: boolean,
     unselectedIcon: any,
     selectedIcon: any,
-    isSelected: boolean
 };
 
 export enum RouteName {
@@ -28,17 +27,15 @@ const RouteList: IRoute[] = [
         exactPath: true,
         unselectedIcon: HomeOutlinedIcon,
         selectedIcon: HomeIcon,
-        isSelected: true
     },
-    {
-        name: RouteName.EXPLORE,
-        component: Explore,
-        path: "/explore",
-        exactPath: false,
-        unselectedIcon: ExploreOutlinedIcon,
-        selectedIcon: ExploreIcon,
-        isSelected: false
-    }
+    // {
+    //     name: RouteName.EXPLORE,
+    //     component: Explore,
+    //     path: "/explore",
+    //     exactPath: false,
+    //     unselectedIcon: ExploreOutlinedIcon,
+    //     selectedIcon: ExploreIcon,
+    // }
 ]
 
 export default RouteList;

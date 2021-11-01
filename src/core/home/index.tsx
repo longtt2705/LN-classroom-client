@@ -1,10 +1,12 @@
-import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Box, Typography, Button } from "@mui/material";
+import { Box, Button, FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { RouteName } from "../../app/routes";
+import { getAllClassroom } from "../../slices/classroom-slice";
+import { setModalOpen } from "../../slices/create-class-modal-sclice";
+import { selectRoute } from "../../slices/route-slice";
 import ClassroomCard from "../components/classroom-card";
-import { selectRoute } from "../../reducers/route-slice"
-import { RouteName } from "../../app/routes"
 
 const Wrapper = styled(Box)(({ theme }) => ({
     flexGrow: 1,
@@ -12,14 +14,14 @@ const Wrapper = styled(Box)(({ theme }) => ({
     height: "100%",
 }));
 
-const VerticalCenterContainer = styled(Box)(({ theme }) => ({
+const VerticalCenterContainer = styled(Box)(({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     height: "100%",
 }));
 
-const HorizontalCenterContainer = styled(Box)(({ theme }) => ({
+const HorizontalCenterContainer = styled(Box)(({
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
@@ -31,12 +33,17 @@ interface HomeProps {
 
 
 const Home: FunctionComponent<HomeProps> = ({ name }) => {
-    const classrooms = useAppSelector((state) => [...state.classroomReducer.listEnrolled, ...state.classroomReducer.listTeaching])
+    const classrooms = useAppSelector((state) => state.classroomReducer.classrooms)
     const dispatch = useAppDispatch()
 
     useEffect(() => {
         dispatch(selectRoute(name))
+        dispatch(getAllClassroom())
     }, [])
+
+    const handleCreateClass = () => {
+        dispatch(setModalOpen())
+    }
 
     return (
         <Wrapper>
@@ -44,22 +51,28 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
                 classrooms.length > 0 ? (
                     <>
                         <FormControl component="fieldset">
-                            <RadioGroup row aria-label="class-type" name="row-radio-buttons-group">
+                            <RadioGroup row aria-label="class-type" name="row-radio-buttons-group" defaultValue="All">
                                 <FormControlLabel value="All" control={<Radio />} label="All" />
                                 <FormControlLabel value="Enrolled" control={<Radio />} label="Enrolled" />
                                 <FormControlLabel value="Teaching" control={<Radio />} label="Teaching" />
                             </RadioGroup>
                         </FormControl>
-                        {
-                            classrooms.map((classroom, index) => {
-                                <ClassroomCard
-                                    key={index}
-                                    id={classroom.id}
-                                    name={classroom.name}
-                                    owner={classroom.ownerId}
-                                />
-                            })
-                        }
+                        <Box mt={6}></Box>
+                        <Grid container>
+                            {
+                                classrooms.map((classroom, index) => (
+                                    <Grid item xs={12} md={3} key={index} style={{ marginTop: '16px', marginBottom: '16px' }}>
+                                        <ClassroomCard
+                                            id={classroom._id}
+                                            name={classroom.name}
+                                            owner={classroom.ownerId}
+                                            description={classroom.description}
+                                        />
+                                    </Grid>
+
+                                ))
+                            }
+                        </Grid>
                     </>) :
                     <VerticalCenterContainer>
                         <Typography align='center' variant="h4" component="div">You have not enrolled in any classes!</Typography>
@@ -71,7 +84,7 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
                             <Box mr={2} display="inline"></Box>
                             <Typography align='center' variant="h5" component="div">or </Typography>
                             <Box mr={2} display="inline"></Box>
-                            <Button variant="contained" color="primary">
+                            <Button variant="contained" color="primary" onClick={handleCreateClass}>
                                 Create Class
                             </Button>
                             <Box mr={2} display="inline"></Box>

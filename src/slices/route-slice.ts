@@ -6,7 +6,7 @@ interface RouteState {
 };
 
 const initialState: RouteState = {
-    currentSelected: 0
+    currentSelected: -1
 };
 
 const selectRouteHandler: CaseReducer<WritableDraft<RouteState>, PayloadAction<RouteName>> = (state, action) => {

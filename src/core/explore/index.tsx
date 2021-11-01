@@ -3,8 +3,9 @@ import { styled } from '@mui/material/styles';
 import { FunctionComponent, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import ClassroomCard from "../components/classroom-card";
-import { selectRoute } from "../../reducers/route-slice"
+import { selectRoute } from "../../slices/route-slice"
 import { RouteName } from "../../app/routes"
+import { getAllClassroom } from "../../slices/classroom-slice";
 
 const Wrapper = styled(Box)(({ theme }) => ({
     flexGrow: 1,
@@ -31,7 +32,7 @@ interface ExploreProps {
 
 
 const Explore: FunctionComponent<ExploreProps> = ({ name }) => {
-    const classrooms = useAppSelector((state) => [...state.classroomReducer.listEnrolled, ...state.classroomReducer.listTeaching])
+    const classrooms = useAppSelector((state) => state.classroomReducer.searchResult)
     const dispatch = useAppDispatch()
 
     useEffect(() => {
@@ -54,23 +55,18 @@ const Explore: FunctionComponent<ExploreProps> = ({ name }) => {
                             classrooms.map((classroom, index) => {
                                 <ClassroomCard
                                     key={index}
-                                    id={classroom.id}
+                                    id={classroom._id}
                                     name={classroom.name}
                                     owner={classroom.ownerId}
+                                    description={classroom.description}
                                 />
                             })
                         }
                     </>) :
                     <VerticalCenterContainer>
-                        <Typography align='center' variant="h4" component="div">You have not enrolled in any classes!</Typography>
+                        <Typography align='center' variant="h4" component="div">There are currently no classrooms!</Typography>
                         <Box mt={2}></Box>
                         <HorizontalCenterContainer>
-                            <Button variant="contained" color="success">
-                                Join Class
-                            </Button>
-                            <Box mr={2} display="inline"></Box>
-                            <Typography align='center' variant="h5" component="div">or </Typography>
-                            <Box mr={2} display="inline"></Box>
                             <Button variant="contained" color="primary">
                                 Create Class
                             </Button>

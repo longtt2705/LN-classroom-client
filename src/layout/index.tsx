@@ -1,17 +1,17 @@
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import AppBar from './app-bar';
 import SideBar from './side-bar';
 import { Switch } from "react-router-dom";
-import { ReactElement } from 'react';
-
-
+import CreateClassroomModal from './create-class-modal';
+import AlertSnackBar from './alert';
 interface LayoutProps {
   children: any
 }
 
+
 const Layout: React.FunctionComponent<LayoutProps> = ({ children }) => {
+
   return (
     <Box sx={{ display: 'flex', minHeight: '80vh' }}>
       <AppBar />
@@ -21,6 +21,8 @@ const Layout: React.FunctionComponent<LayoutProps> = ({ children }) => {
         <Switch>
           {children}
         </Switch>
+        <CreateClassroomModal />
+        <AlertSnackBar />
       </Box>
     </Box>
   );

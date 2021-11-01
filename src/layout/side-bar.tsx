@@ -39,7 +39,7 @@ export default function SideBar() {
             <Box sx={{ overflow: 'auto' }} >
                 <List>
                     <SidebarLabel > General </SidebarLabel>
-                    {RouteList.map((route, index) => (
+                    {RouteList && RouteList.map((route, index) => (
                         <ListItem
                             key={index}
                             button
@@ -58,7 +58,7 @@ export default function SideBar() {
                         </ListItem>
                     ))}
                 </List>
-                <Divider />
+                {/* <Divider />
                 <SidebarLabel > Teaching </SidebarLabel>
                 <List>
                     {['All mail', 'Trash', 'Spam'].map((text, index) => (
@@ -68,7 +68,7 @@ export default function SideBar() {
                             <ListItemText primary={text} />
                         </ListItem>
                     ))}
-                </List>
+                </List> */}
             </Box>
         </Drawer >
     );

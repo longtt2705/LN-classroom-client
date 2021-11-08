@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import AppBar from './app-bar';
-import SideBar from './side-bar';
+import AppBar from './components/app-bar';
+import SideBar from './components/side-bar';
 import { Switch } from "react-router-dom";
-import CreateClassroomModal from './create-class-modal';
-import AlertSnackBar from './alert';
+import CreateClassroomModal from './components/create-class-modal';
+import AlertSnackBar from './components/alert';
 interface LayoutProps {
   children: any
 }

@@ -62,12 +62,7 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
                             {
                                 classrooms.map((classroom, index) => (
                                     <Grid item xs={12} md={3} key={index} style={{ marginTop: '16px', marginBottom: '16px' }}>
-                                        <ClassroomCard
-                                            id={classroom._id}
-                                            name={classroom.name}
-                                            owner={classroom.ownerId}
-                                            description={classroom.description}
-                                        />
+                                        <ClassroomCard classroom={classroom} />
                                     </Grid>
 
                                 ))

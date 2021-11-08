@@ -5,11 +5,12 @@ import { ERROR_MESSAGE } from "../shared/constants";
 import { createAlert } from "./alert-slice";
 
 export interface Classroom {
-    _id: string,
+    _id?: string,
     name: string,
     ownerId: string,
-    teachersId: string[],
-    studentsId: string[],
+    schoolYear: string,
+    teachersId?: string[],
+    studentsId?: string[],
     description?: string,
     createdAt?: Date
 };
@@ -41,12 +42,13 @@ export const getAllClassroom = createAsyncThunk(
 
 export const createClassroom = createAsyncThunk(
     'classrooms/createClassroom',
-    async (info: { name: string, ownerId: string, desc?: string }, thunkApi) => {
+    async (info: Classroom, thunkApi) => {
         try {
             const response = await classroomApi.createClassroom({
                 name: info.name,
+                schoolYear: info.schoolYear,
                 ownerId: info.ownerId,
-                description: info.desc,
+                description: info.description,
             })
             thunkApi.dispatch(createAlert({
                 message: `Created class ${info.name} successfully!`,

@@ -6,6 +6,7 @@ import ClassroomCard from "../components/classroom-card";
 import { selectRoute } from "../../slices/route-slice"
 import { RouteName } from "../../app/routes"
 import { getAllClassroom } from "../../slices/classroom-slice";
+import { setModalOpen } from "../../slices/create-class-modal-sclice";
 
 const Wrapper = styled(Box)(({ theme }) => ({
     flexGrow: 1,
@@ -53,26 +54,20 @@ const Explore: FunctionComponent<ExploreProps> = ({ name }) => {
                         </FormControl>
                         {
                             classrooms.map((classroom, index) => {
-                                <ClassroomCard
-                                    key={index}
-                                    id={classroom._id}
-                                    name={classroom.name}
-                                    owner={classroom.ownerId}
-                                    description={classroom.description}
-                                />
+                                <ClassroomCard key={index} classroom={classroom} />
                             })
                         }
                     </>) :
                     <VerticalCenterContainer>
-                        <Typography align='center' variant="h4" component="div">There are currently no classrooms!</Typography>
-                        <Box mt={2}></Box>
+                        <Typography align='center' variant="h4" component="div">There are currently no classrooms which you did not participate in!</Typography>
+                        {/* <Box mt={2}></Box>
                         <HorizontalCenterContainer>
-                            <Button variant="contained" color="primary">
+                            <Button variant="contained" color="primary" onClick={handleCreateClass}>
                                 Create Class
                             </Button>
                             <Box mr={2} display="inline"></Box>
                             <Typography align='center' variant="h5" component="div">now</Typography>
-                        </HorizontalCenterContainer>
+                        </HorizontalCenterContainer> */}
 
                     </VerticalCenterContainer>
 

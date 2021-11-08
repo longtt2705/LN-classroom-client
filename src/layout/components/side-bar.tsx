@@ -2,8 +2,8 @@ import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, T
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import RouteList from '../app/routes';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import RouteList from '../../app/routes';
 
 const drawerWidth = 240;
 

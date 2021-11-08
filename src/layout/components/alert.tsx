@@ -1,8 +1,8 @@
 import { Alert, Snackbar } from "@mui/material";
 import { FunctionComponent } from "react";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { ALERT_DURATION } from "../shared/constants";
-import { closeAlert } from "../slices/alert-slice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { ALERT_DURATION } from "../../shared/constants";
+import { closeAlert } from "../../slices/alert-slice";
 
 
 const AlertSnackBar: FunctionComponent = () => {

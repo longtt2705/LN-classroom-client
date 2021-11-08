@@ -13,8 +13,8 @@ import { alpha, styled } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
-import { useAppDispatch } from '../app/hooks';
-import { setModalOpen } from '../slices/create-class-modal-sclice';
+import { useAppDispatch } from '../../app/hooks';
+import { setModalOpen } from '../../slices/create-class-modal-sclice';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',

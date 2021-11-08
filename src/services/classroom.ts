@@ -3,7 +3,7 @@ import * as api from './api'
 
 const BASE_URL = 'classrooms/'
 
-export const createClassroom = (classroom: { name: string, ownerId: string, description?: string }) => {
+export const createClassroom = (classroom: Classroom) => {
     return api.post(BASE_URL, classroom)
 }
 

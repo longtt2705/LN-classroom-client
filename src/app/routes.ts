@@ -28,14 +28,14 @@ const RouteList: IRoute[] = [
         unselectedIcon: HomeOutlinedIcon,
         selectedIcon: HomeIcon,
     },
-    // {
-    //     name: RouteName.EXPLORE,
-    //     component: Explore,
-    //     path: "/explore",
-    //     exactPath: false,
-    //     unselectedIcon: ExploreOutlinedIcon,
-    //     selectedIcon: ExploreIcon,
-    // }
+    {
+        name: RouteName.EXPLORE,
+        component: Explore,
+        path: "/explore",
+        exactPath: false,
+        unselectedIcon: ExploreOutlinedIcon,
+        selectedIcon: ExploreIcon,
+    }
 ]
 
 export default RouteList;

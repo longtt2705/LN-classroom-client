@@ -1,9 +1,11 @@
 export interface FontSizes {
-    default: number
+    default: number,
+    sizeLabel:number
 }
 
 const fontSizes = {
-    default: 14
+    default: 14,
+    sizeLabel:25,
 }
 
 export default fontSizes;

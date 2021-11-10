@@ -5,7 +5,8 @@ export interface Colors {
         white: string,
     },
     texting: {
-        sideBarLabel: string
+        sideBarLabel: string,
+        textLabel: string
     }
 }
 
@@ -16,8 +17,9 @@ const colors = {
         white: "#fff"
     },
     texting: {
-        sideBarLabel: '#5f6368'
-    }
+        sideBarLabel: '#5f6368',
+        textLabel: '#0a69a3',
+    },
 }
 
 export default colors;

@@ -7,24 +7,12 @@ import { getAllClassroom } from "../../slices/classroom-slice";
 import { setModalOpen } from "../../slices/create-class-modal-sclice";
 import { selectRoute } from "../../slices/route-slice";
 import ClassroomCard from "../components/classroom-card";
+import { HorizontalCenterContainer, VerticalCenterContainer } from "../components/container";
 
 const Wrapper = styled(Box)(({ theme }) => ({
     flexGrow: 1,
     padding: theme.spacing(4, 8),
     height: "100%",
-}));
-
-const VerticalCenterContainer = styled(Box)(({
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    height: "100%",
-}));
-
-const HorizontalCenterContainer = styled(Box)(({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
 }));
 
 interface HomeProps {

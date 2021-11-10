@@ -10,13 +10,16 @@ import {
 import ListRouter from "./app/routes"
 import { Provider } from 'react-redux';
 import store from './app/store';
+import LoginPage from './core/signin'
+import AlertSnackBar from './core/components/alert';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
       <Provider store={store}>
         <ThemeProvider theme={theme}>
-          <Layout>
+          <LoginPage />
+          {/* <Layout>
             {ListRouter.map((route, index) => (
               <Route
                 key={index}
@@ -27,7 +30,8 @@ ReactDOM.render(
                 )}
               />
             ))}
-          </Layout>
+          </Layout> */}
+          <AlertSnackBar />
         </ThemeProvider>
       </Provider>
     </Router>

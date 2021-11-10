@@ -1,12 +1,11 @@
-import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Box, Typography, Button } from "@mui/material";
+import { Box, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { RouteName } from "../../app/routes";
+import { selectRoute } from "../../slices/route-slice";
 import ClassroomCard from "../components/classroom-card";
-import { selectRoute } from "../../slices/route-slice"
-import { RouteName } from "../../app/routes"
-import { getAllClassroom } from "../../slices/classroom-slice";
-import { setModalOpen } from "../../slices/create-class-modal-sclice";
+import { VerticalCenterContainer } from "../components/container";
 
 const Wrapper = styled(Box)(({ theme }) => ({
     flexGrow: 1,
@@ -14,18 +13,6 @@ const Wrapper = styled(Box)(({ theme }) => ({
     height: "100%",
 }));
 
-const VerticalCenterContainer = styled(Box)(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    height: "100%",
-}));
-
-const HorizontalCenterContainer = styled(Box)(({ theme }) => ({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-}));
 
 interface ExploreProps {
     name: RouteName

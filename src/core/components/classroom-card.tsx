@@ -1,7 +1,7 @@
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FunctionComponent } from "react";
-import { CLASSROOM_CARD_MEDIA_HEIGHT, CLASSROOM_CARD_WIDTH } from "../../shared/constants";
+import { CLASSROOM_CARD_MEDIA_HEIGHT, CLASSROOM_CARD_WIDTH } from "../../shared/styles";
 import { Classroom } from "../../slices/classroom-slice";
 
 interface ClassroomCardProps {

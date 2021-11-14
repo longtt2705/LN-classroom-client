@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
-import * as classroomApi from '../services/classroom'
-import { ERROR_MESSAGE } from "../shared/constants";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import * as classroomApi from '../services/classroom';
+import { ERROR_MESSAGE, NO_MESSAGE } from "../shared/messages";
 import { createAlert } from "./alert-slice";
 
 export interface Classroom {
@@ -57,8 +57,8 @@ export const createClassroom = createAsyncThunk(
             return response.data
         } catch (err) {
             if (axios.isAxiosError(err)) {
-                const statusCode = err.response?.status || ""
-                const statusText = err.response?.statusText || ""
+                const statusCode = err.response?.status || NO_MESSAGE
+                const statusText = err.response?.statusText || NO_MESSAGE
                 const message = `Error: ${statusCode} ${statusText}` || ERROR_MESSAGE
                 thunkApi.dispatch(createAlert({
                     message,

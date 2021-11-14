@@ -1,7 +1,7 @@
 import { Alert, Snackbar } from "@mui/material";
 import { FunctionComponent } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { ALERT_DURATION } from "../../shared/constants";
+import { ALERT_DURATION } from "../../shared/styles";
 import { closeAlert } from "../../slices/alert-slice";
 
 

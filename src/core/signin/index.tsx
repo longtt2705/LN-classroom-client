@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import { Link } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -16,16 +16,25 @@ import OAuthButton from '../components/oauth-button';
 import Card from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { VerticalCenterContainer } from '../components/container';
+import SignInImage from '../../public/images/signin-classroom.jpg';
 
 
 const theme = createTheme();
 
 const StyledCard = styled(Card)(({ theme }) => ({
     display: 'flex',
+    flexWrap: 'wrap',
     flexDirection: 'column',
     alignItems: 'center',
     borderRadius: '19px',
     padding: theme.spacing(2)
+}));
+
+const BackgroundImage = styled('img')(({
+    position: 'fixed',
+    bottom: 0,
+    right: 0,
+    zIndex: -1
 }));
 
 export default function SignIn() {
@@ -41,6 +50,7 @@ export default function SignIn() {
 
     return (
         <ThemeProvider theme={theme}>
+            <BackgroundImage src={SignInImage} />
             <Container component="main" maxWidth="xs" sx={{ height: "100vh" }}>
                 <VerticalCenterContainer >
                     <CssBaseline />
@@ -73,7 +83,7 @@ export default function SignIn() {
                                 autoComplete="current-password"
                             />
                             <Typography sx={{ mb: 2, mt: 2 }}>
-                                <Link href="#" variant="body1">
+                                <Link to="/">
                                     Forgot password?
                                 </Link>
                             </Typography>
@@ -96,7 +106,7 @@ export default function SignIn() {
                                 </Grid>
                             </Grid>
                             <Typography align="center" sx={{ mb: 2, mt: 2 }}>
-                                <Link href="#" variant="body2">
+                                <Link to="/register" >
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Typography>

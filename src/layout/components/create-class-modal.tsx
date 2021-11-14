@@ -1,9 +1,10 @@
-import { Button, Modal, Typography, Box, TextField } from '@mui/material';
+import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import React, { useState } from 'react';
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { Classroom, createClassroom } from '../../slices/classroom-slice';
+import { createClassroom } from '../../slices/classroom-slice';
 import { setModalClose } from '../../slices/create-class-modal-sclice';
+import InputFieldValidator, { notEmptyValidation, useValidator, useValidatorManagement } from '../../utils/validator';
 
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -30,63 +31,34 @@ const RightAlignContainer = styled(Box)(({ theme }) => ({
     marginTop: theme.spacing(5)
 }));
 
-
-const initialState = {
-    "classname": {
-        value: "", error: "This field cannot be empty!"
-    },
-    "schoolYear": {
-        value: "", error: "This field cannot be empty!"
-    },
-    "description": {
-        value: "", error: ""
-    },
-}
-
 const CreateClassroomModal = () => {
-    const [inputFields, setInputFields] = useState(initialState)
+    const validatorFields = useValidatorManagement()
+    let classname = useValidator("Class Name", notEmptyValidation, "", validatorFields)
+    let schoolYear = useValidator("School Year", notEmptyValidation, "", validatorFields)
+    let description = useValidator("Description", null, "", validatorFields)
+
     const open = useAppSelector((state) => state.createClassModalReducer.isOpen)
     const dispatch = useAppDispatch()
 
-    const hasError = (() => {
-        for (const [_, inputField] of Object.entries(inputFields)) {
-            if (inputField.error.length > 0) {
-                return true
-            }
-        }
-        return false
-    })()
-
+    const hasError = validatorFields.hasError()
     const handleClose = () => {
-        setInputFields(initialState)
+        validatorFields.reset()
         dispatch(setModalClose())
     }
 
+    const handleOnChange = validatorFields.handleOnChange
+
     const handleSubmit = () => {
-        handleClose()
-        dispatch(createClassroom({
-            name: inputFields.classname.value,
-            schoolYear: inputFields.schoolYear.value,
-            ownerId: '617fde33f77e37b3eba7cd12',
-            description: inputFields.description.value
-        }))
-    }
-
-    const handleOnChange = (inputFieldName: string, isNotEmpty: boolean = true) =>
-        (event: React.ChangeEvent<HTMLInputElement>) => {
-            setInputFields({
-                ...inputFields,
-                [inputFieldName]: {
-                    value: event.target.value,
-                    error: isNotEmpty ? validateNotEmpty(event.target.value) : ""
-                }
-            })
+        validatorFields.validate()
+        if (!validatorFields.hasError()) {
+            handleClose()
+            dispatch(createClassroom({
+                name: classname.value,
+                schoolYear: schoolYear.value,
+                ownerId: '617fde33f77e37b3eba7cd12',
+                description: description.value
+            }))
         }
-
-    const validateNotEmpty = (value: string) => {
-        if (value.length > 0)
-            return ""
-        return "This field cannot be empty!"
     }
 
     return (
@@ -102,23 +74,25 @@ const CreateClassroomModal = () => {
                 </Typography>
                 <StyledTextFiled
                     variant="filled"
-                    error={inputFields.classname.error.length > 0}
+                    error={classname.hasError()}
                     required
                     id="outlined-required"
                     label="Class name"
                     placeholder="Type your classroom's name here"
-                    onChange={handleOnChange("classname")}
-                    helperText={inputFields.classname.error}
+                    onChange={handleOnChange(classname)}
+                    helperText={classname.error}
+                    onBlur={() => classname.validate()}
                 />
                 <StyledTextFiled
                     variant="filled"
-                    error={inputFields.schoolYear.error.length > 0}
+                    error={schoolYear.hasError()}
                     required
                     id="outlined-required"
                     label="School Year"
                     placeholder="Type your school year's section here"
-                    onChange={handleOnChange("schoolYear")}
-                    helperText={inputFields.schoolYear.error}
+                    onChange={handleOnChange(schoolYear)}
+                    helperText={schoolYear.error}
+                    onBlur={() => schoolYear.validate()}
                 />
                 <StyledTextFiled
                     variant="filled"
@@ -127,7 +101,7 @@ const CreateClassroomModal = () => {
                     placeholder="Type your classroom's description here"
                     multiline
                     rows={5}
-                    onChange={handleOnChange("description", false)}
+                    onChange={handleOnChange(description)}
                 />
                 <RightAlignContainer>
                     <Button color="inherit" onClick={handleClose}>Cancel</Button>

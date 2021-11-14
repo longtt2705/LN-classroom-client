@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import * as userApi from '../services/user';
-import { ERROR_MESSAGE } from "../shared/constants";
+import { ERROR_MESSAGE } from "../shared/messages";
 import { createAlert } from "./alert-slice";
 
 export interface User {

@@ -4,7 +4,7 @@ import { startCase } from 'lodash';
 import { FunctionComponent } from "react";
 import FACEBOOK_LOGO from '../../public/icons/facebook.png';
 import GOOGLE_LOGO from '../../public/icons/google.png';
-import { LOGO_WIDTH } from "../../shared/constants";
+import { LOGO_WIDTH } from "../../shared/styles";
 
 interface OauthButtonProps {
     name: "google" | "facebook"

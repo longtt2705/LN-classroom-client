@@ -1,5 +1,5 @@
 import { createTheme } from "@mui/material";
-import { DEFAULT_SPACING } from "../shared/constants";
+import { DEFAULT_SPACING } from "../shared/styles";
 import colors from "./colors";
 import fontSizes from "./font-size";
 

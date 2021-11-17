@@ -2,7 +2,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { Avatar, Box, Divider, Grid, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { FunctionComponent } from 'react';
-import { PEOPLE_GRID_WIDTH } from "../../../shared/constants";
+import { PEOPLE_GRID_WIDTH } from "../../../shared/styles";
 
 const HorizontalCenterContainer = styled(Box)(({
     display: "flex",
@@ -12,7 +12,7 @@ const HorizontalCenterContainer = styled(Box)(({
 
 const Label = styled(Typography)(({ theme }) => ({
     color: theme.colors.texting.textLabel,
-    fontSize: theme.fontSizes.sizeLabel, 
+    fontSize: theme.fontSizes.sizeLabel,
 }))
 
 const Line = styled(Divider)(({ theme }) => ({
@@ -87,7 +87,7 @@ const PeopleClass: FunctionComponent = () => {
                     <Label>
                         Students
                     </Label>
-                    <Line/>
+                    <Line />
                     <List>
                         {students.map((student, index) => (
                             <ListItem key={index}>

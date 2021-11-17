@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
-import * as classroomApi from '../services/classroom'
-import { ERROR_MESSAGE } from "../shared/constants";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import * as classroomApi from '../services/classroom';
+import { ERROR_MESSAGE, NO_MESSAGE } from "../shared/messages";
 import { createAlert } from "./alert-slice";
 
 export interface Classroom {
@@ -42,7 +42,7 @@ export const getAllClassroom = createAsyncThunk(
 
 export const createClassroom = createAsyncThunk(
     'classrooms/createClassroom',
-    async (info: Classroom, thunkApi) => {
+    async (info: Classroom | any, thunkApi) => {
         try {
             const response = await classroomApi.createClassroom({
                 name: info.name,
@@ -57,8 +57,8 @@ export const createClassroom = createAsyncThunk(
             return response.data
         } catch (err) {
             if (axios.isAxiosError(err)) {
-                const statusCode = err.response?.status || ""
-                const statusText = err.response?.statusText || ""
+                const statusCode = err.response?.status || NO_MESSAGE
+                const statusText = err.response?.statusText || NO_MESSAGE
                 const message = `Error: ${statusCode} ${statusText}` || ERROR_MESSAGE
                 thunkApi.dispatch(createAlert({
                     message,
@@ -77,8 +77,15 @@ const classroomSlice = createSlice({
 
     },
     extraReducers: (builder) => {
+        builder.addCase(getAllClassroom.pending, (state) => {
+            state.isLoading = true
+        });
         builder.addCase(getAllClassroom.fulfilled, (state, action) => {
             state.classrooms = action.payload
+            state.isLoading = false
+        });
+        builder.addCase(getAllClassroom.rejected, (state) => {
+            state.isLoading = false
         });
         builder.addCase(createClassroom.fulfilled, (state, action) => {
             state.classrooms.push(action.payload)

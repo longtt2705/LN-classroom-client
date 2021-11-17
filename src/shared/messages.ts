@@ -3,6 +3,8 @@ export const NO_MESSAGE = ""
 export const NOT_EMPTY_ERROR_MESSAGE = "This field cannot be empty!"
 export const NOT_STRONG_PASSWORD_ERROR_MESSAGE = "Password must contains lowercase, uppercase, number, symbols and at least 8 characters length!"
 export const NOT_EMAIL_ERROR_MESSAGE = "Invalid email! Please input a valid one!"
+export const LOGIN_FAILED = "Username or password is incorrect!"
+
 
 export const createMessageInRangeError = (min?: number, max?: number) => {
     if (!min && !max)

@@ -17,6 +17,10 @@ import Card from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { VerticalCenterContainer } from '../components/container';
 import SignInImage from '../../public/images/signin-classroom.jpg';
+import { loginUser } from '../../slices/user-slice';
+import { useAppDispatch } from '../../app/hooks';
+import { LOGIN_FAILED } from '../../shared/messages';
+import { useHistory } from "react-router-dom";
 
 
 const theme = createTheme();
@@ -38,14 +42,25 @@ const BackgroundImage = styled('img')(({
 }));
 
 export default function SignIn() {
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const dispatch = useAppDispatch();
+    const [errors, setErrors] = React.useState("")
+    const history = useHistory()
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        // eslint-disable-next-line no-console
-        console.log({
-            email: data.get('email'),
+        const rememberMe = data.get('rememberMe')
+        const payload: { username: any, password: any, rememberMe?: any } = {
+            username: data.get('username'),
             password: data.get('password'),
-        });
+            rememberMe: rememberMe
+        }
+        !rememberMe && delete payload.rememberMe
+        try {
+            await dispatch(loginUser(payload)).unwrap()
+            history.push("/")
+        } catch (err) {
+            setErrors(LOGIN_FAILED)
+        }
     };
 
     return (
@@ -64,17 +79,17 @@ export default function SignIn() {
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 id="username"
                                 label="Username"
                                 name="username"
                                 autoComplete="username"
+                                error={errors.length > 0}
+                                helperText={errors}
                                 autoFocus
                             />
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 name="password"
                                 label="Password"
@@ -89,8 +104,8 @@ export default function SignIn() {
                             </Typography>
                             <Grid container sx={{ mt: 2, mb: 2 }}>
                                 <Grid item xs>
-                                    <FormControlLabel
-                                        control={<Checkbox value="remember" color="primary" />}
+                                    <FormControlLabel name="rememberMe" id="rememberMe"
+                                        control={<Checkbox value="rememberMe" color="primary" name="rememberMe" id="rememberMe" />}
                                         label="Remember me"
                                     />
                                 </Grid>

@@ -9,10 +9,16 @@ import { Link } from 'react-router-dom';
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import * as React from 'react';
 import { VerticalCenterContainer } from '../components/container';
 import OAuthButton from '../components/oauth-button';
 import SignUpImage from '../../public/images/signup-classroom.jpg';
+import { emailValidation, notEmptyValidation, passwordValidation, usernameValidation, useValidator, useValidatorManagement } from '../../utils/validator';
+import { useAppDispatch } from '../../app/hooks';
+import { registerUser } from '../../slices/user-slice';
+import { useHistory } from "react-router-dom";
+import axios from 'axios';
+import { get } from 'lodash';
+
 
 const theme = createTheme();
 
@@ -33,15 +39,36 @@ const BackgroundImage = styled('img')(({
 }));
 
 export default function SignIn() {
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        // eslint-disable-next-line no-console
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+    const validatorFields = useValidatorManagement()
+    const firstName = useValidator("firstName", notEmptyValidation, "", validatorFields)
+    const lastName = useValidator("lastName", notEmptyValidation, "", validatorFields)
+    const email = useValidator("email", emailValidation, "", validatorFields)
+    const username = useValidator("username", usernameValidation, "", validatorFields)
+    const password = useValidator("password", passwordValidation, "", validatorFields)
+    const history = useHistory()
+    const dispatch = useAppDispatch()
+
+    const hasError = validatorFields.hasError()
+    const handleSubmit = async () => {
+
+        validatorFields.validate()
+        if (!validatorFields.hasError()) {
+            const payload = validatorFields.getValuesObject()
+            try {
+                await dispatch(registerUser(payload)).unwrap()
+                history.push("/login")
+            } catch (err) {
+                if (axios.isAxiosError(err)) {
+                    const usernameError = get(err.response?.data, "username")
+                    const emailError = get(err.response?.data, "email")
+                    username.setError(usernameError)
+                    email.setError(emailError)
+                }
+            }
+        }
     };
+
+    const handleOnChange = validatorFields.handleOnChange
 
     return (
         <ThemeProvider theme={theme}>
@@ -56,57 +83,69 @@ export default function SignIn() {
                         <Typography component="h1" variant="h6" align="center">
                             Welcome to Classroom Management. Sign-up to continue
                         </Typography>
-                        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                        <Box component="main" sx={{ mt: 1 }}>
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="firstname"
                                 label="First name"
-                                name="firstname"
+                                error={firstName.hasError()}
+                                helperText={firstName.error}
+                                onChange={handleOnChange(firstName)}
+                                onBlur={() => firstName.validate()}
                                 autoFocus
                             />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="lastname"
                                 label="Last name"
-                                name="lastname"
+                                error={lastName.hasError()}
+                                helperText={lastName.error}
+                                onChange={handleOnChange(lastName)}
+                                onBlur={() => lastName.validate()}
                             />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="email"
                                 label="Email"
-                                name="email"
                                 autoComplete="email"
+                                error={email.hasError()}
+                                helperText={email.error}
+                                onChange={handleOnChange(email)}
+                                onBlur={() => email.validate()}
                             />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="username"
+                                error={username.hasError()}
+                                helperText={username.error}
                                 label="Username"
-                                name="username"
                                 autoComplete="username"
+                                onChange={handleOnChange(username)}
+                                onBlur={() => username.validate()}
                             />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                name="password"
                                 label="Password"
                                 type="password"
-                                id="password"
+                                error={password.hasError()}
+                                helperText={password.error}
                                 autoComplete="current-password"
+                                onChange={handleOnChange(password)}
+                                onBlur={() => password.validate()}
                             />
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
                                 sx={{ borderRadius: 29, mt: 2 }}
+                                onClick={handleSubmit}
+                                disabled={hasError}
                             >
                                 Sign Up
                             </Button>

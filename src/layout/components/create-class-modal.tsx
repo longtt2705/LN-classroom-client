@@ -1,9 +1,11 @@
 import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React from 'react';
+import { useHistory } from 'react-router';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { createClassroom } from '../../slices/classroom-slice';
 import { setModalClose } from '../../slices/create-class-modal-sclice';
+import { User } from '../../slices/user-slice';
 import InputFieldValidator, { notEmptyValidation, useValidator, useValidatorManagement } from '../../utils/validator';
 
 
@@ -33,9 +35,9 @@ const RightAlignContainer = styled(Box)(({ theme }) => ({
 
 const CreateClassroomModal = () => {
     const validatorFields = useValidatorManagement()
-    let classname = useValidator("Class Name", notEmptyValidation, "", validatorFields)
-    let schoolYear = useValidator("School Year", notEmptyValidation, "", validatorFields)
-    let description = useValidator("Description", null, "", validatorFields)
+    const classname = useValidator("name", notEmptyValidation, "", validatorFields)
+    const schoolYear = useValidator("schoolYear", notEmptyValidation, "", validatorFields)
+    const description = useValidator("description", null, "", validatorFields)
 
     const open = useAppSelector((state) => state.createClassModalReducer.isOpen)
     const dispatch = useAppDispatch()
@@ -51,13 +53,9 @@ const CreateClassroomModal = () => {
     const handleSubmit = () => {
         validatorFields.validate()
         if (!validatorFields.hasError()) {
+            const payload = { ...validatorFields.getValuesObject(), ownerId: '617fde33f77e37b3eba7cd12' }
+            dispatch(createClassroom(payload))
             handleClose()
-            dispatch(createClassroom({
-                name: classname.value,
-                schoolYear: schoolYear.value,
-                ownerId: '617fde33f77e37b3eba7cd12',
-                description: description.value
-            }))
         }
     }
 
@@ -82,6 +80,7 @@ const CreateClassroomModal = () => {
                     onChange={handleOnChange(classname)}
                     helperText={classname.error}
                     onBlur={() => classname.validate()}
+                    autoFocus
                 />
                 <StyledTextFiled
                     variant="filled"

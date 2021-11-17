@@ -1,5 +1,5 @@
 import { Classroom } from '../slices/classroom-slice'
-import * as api from './api'
+import api from './api'
 
 const BASE_URL = 'classrooms/'
 

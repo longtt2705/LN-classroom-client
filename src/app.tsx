@@ -10,12 +10,32 @@ import LoginPage from './core/signin'
 import RegisterPage from './core/signup'
 import AlertSnackBar from './core/components/alert';
 import PageNotFound from './core/components/page-not-found';
+import { useAppDispatch, useAppSelector } from './app/hooks';
+import { useEffect, useState } from 'react';
+import { checkAuthentication } from './slices/user-slice';
+import { useHistory } from 'react-router-dom'
+import LoadingScreen from './core/components/loading-screen';
 
 
 const App = () => {
-    const isAuthenticated = true
+    const isAuthenticated = useAppSelector((state) => state.userReducer.isAuthenticated)
+    const isLoading = useAppSelector((state) => state.userReducer.isLoading)
+    const history = useHistory()
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        dispatch(checkAuthentication())
+    }, [])
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            history && history.push("/")
+        }
+
+    }, [isAuthenticated])
+
     return (
-        <Router>
+        <>
+            {isLoading && <LoadingScreen />}
             {
                 !isAuthenticated ?
                     (<Switch>
@@ -38,7 +58,7 @@ const App = () => {
                     </Layout>)
             }
             <AlertSnackBar />
-        </Router>
+        </>
     );
 }
 

@@ -4,6 +4,7 @@ import isLength from "validator/lib/isLength"
 import isEmail from "validator/lib/isEmail"
 import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE } from "../shared/messages"
 import { useState } from "react"
+import { User } from '../slices/user-slice'
 
 const usernameMinLength = 6
 
@@ -72,7 +73,6 @@ export default class InputFieldValidator {
 
     runSetState(origin: InputFieldValidator) {
         this.setState(this)
-        origin.cleanUpReference()
     }
 
     handleOnChange(value: string) {
@@ -83,17 +83,17 @@ export default class InputFieldValidator {
         clone.runSetState(this)
     }
 
+    setError(error: string) {
+        const clone = this.clone()
+        clone.error = error
+        clone.runSetState(this)
+    }
+
     reset() {
         const clone = this.clone()
         clone.error = ""
         clone.value = this.initValue
         clone.runSetState(this)
-    }
-
-    cleanUpReference() {
-        delete this.validator
-        delete this.setState
-        this.validatorManagement = null
     }
 
     clone() {
@@ -146,7 +146,21 @@ export class ValidatorManagement {
     validate = () => {
         this.listValidator.forEach((validator) => validator.validate())
     }
+
+    getValuesObject = () => {
+        interface ValuesObject {
+            [key: string]: string
+        }
+
+        const reduceFunction = (previousValue: ValuesObject, validator: InputFieldValidator) => {
+            previousValue[validator.name] = validator.value
+            return previousValue
+        }
+        return this.listValidator.reduce(reduceFunction, {})
+    }
 }
+
+
 
 export const useValidatorManagement = () => {
     const [manager, _] = useState(() => new ValidatorManagement())

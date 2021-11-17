@@ -42,7 +42,7 @@ export const getAllClassroom = createAsyncThunk(
 
 export const createClassroom = createAsyncThunk(
     'classrooms/createClassroom',
-    async (info: Classroom, thunkApi) => {
+    async (info: Classroom | any, thunkApi) => {
         try {
             const response = await classroomApi.createClassroom({
                 name: info.name,
@@ -77,8 +77,15 @@ const classroomSlice = createSlice({
 
     },
     extraReducers: (builder) => {
+        builder.addCase(getAllClassroom.pending, (state) => {
+            state.isLoading = true
+        });
         builder.addCase(getAllClassroom.fulfilled, (state, action) => {
             state.classrooms = action.payload
+            state.isLoading = false
+        });
+        builder.addCase(getAllClassroom.rejected, (state) => {
+            state.isLoading = false
         });
         builder.addCase(createClassroom.fulfilled, (state, action) => {
             state.classrooms.push(action.payload)

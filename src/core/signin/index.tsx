@@ -56,8 +56,7 @@ export default function SignIn() {
         }
         !rememberMe && delete payload.rememberMe
         try {
-            await dispatch(loginUser(payload)).unwrap()
-            history.push("/")
+            dispatch(loginUser(payload))
         } catch (err) {
             setErrors(LOGIN_FAILED)
         }

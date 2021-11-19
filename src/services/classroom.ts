@@ -10,3 +10,7 @@ export const createClassroom = (classroom: Classroom) => {
 export const getAllClassroom = () => {
     return api.get(BASE_URL)
 }
+
+export const joinClassByLink = (token: string) => {
+    return api.post(BASE_URL + "invitation", { token })
+}

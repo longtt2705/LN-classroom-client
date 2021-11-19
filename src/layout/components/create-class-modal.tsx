@@ -40,6 +40,7 @@ const CreateClassroomModal = () => {
     const description = useValidator("description", null, "", validatorFields)
 
     const open = useAppSelector((state) => state.createClassModalReducer.isOpen)
+    const user = useAppSelector((state) => state.userReducer.user)
     const dispatch = useAppDispatch()
 
     const hasError = validatorFields.hasError()
@@ -53,7 +54,7 @@ const CreateClassroomModal = () => {
     const handleSubmit = () => {
         validatorFields.validate()
         if (!validatorFields.hasError()) {
-            const payload = { ...validatorFields.getValuesObject(), ownerId: '617fde33f77e37b3eba7cd12' }
+            const payload = { ...validatorFields.getValuesObject(), ownerId: user?._id }
             dispatch(createClassroom(payload))
             handleClose()
         }

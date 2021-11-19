@@ -1,6 +1,6 @@
-import { Box, Button, FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup, Typography } from "@mui/material";
+import { Box, Button, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import { FunctionComponent, useEffect } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { RouteName } from "../../app/routes";
 import { getAllClassroom } from "../../slices/classroom-slice";
@@ -22,9 +22,11 @@ interface HomeProps {
 
 
 const Home: FunctionComponent<HomeProps> = ({ name }) => {
-    const classrooms = useAppSelector((state) => state.classroomReducer.classrooms)
+    const enrolledClassrooms = useAppSelector((state) => state.classroomReducer.enrolledClassrooms)
+    const teachingClassrooms = useAppSelector((state) => state.classroomReducer.teachingClassrooms)
     const isLoading = useAppSelector((state) => state.classroomReducer.isLoading)
     const dispatch = useAppDispatch()
+    const [classroomTypes, setClassroomTypes] = useState("All")
 
     useEffect(() => {
         dispatch(selectRoute(name))
@@ -35,24 +37,42 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
         dispatch(setModalOpen())
     }
 
+    const getDisplayClassroom = () => {
+        switch (classroomTypes) {
+            case "Enrolled":
+                return enrolledClassrooms;
+            case "Teaching":
+                return teachingClassrooms
+            case "All":
+            default:
+                return [...enrolledClassrooms, ...teachingClassrooms]
+        }
+    }
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setClassroomTypes(event.target.value);
+    }
+
+    const displayClassroom = getDisplayClassroom()
+
     return (
         <Wrapper>
-
+            <FormControl component="fieldset">
+                <RadioGroup row aria-label="class-type" name="row-radio-buttons-group" value={classroomTypes} onChange={handleChange}>
+                    <FormControlLabel value="All" control={<Radio />} label="All" />
+                    <FormControlLabel value="Enrolled" control={<Radio />} label="Enrolled" />
+                    <FormControlLabel value="Teaching" control={<Radio />} label="Teaching" />
+                </RadioGroup>
+            </FormControl>
+            <Box mt={6}></Box>
             {
                 isLoading ? <SpinnerLoading /> :
-                    classrooms.length > 0 ? (
+                    displayClassroom.length > 0 ? (
                         <>
-                            <FormControl component="fieldset">
-                                <RadioGroup row aria-label="class-type" name="row-radio-buttons-group" defaultValue="All">
-                                    <FormControlLabel value="All" control={<Radio />} label="All" />
-                                    <FormControlLabel value="Enrolled" control={<Radio />} label="Enrolled" />
-                                    <FormControlLabel value="Teaching" control={<Radio />} label="Teaching" />
-                                </RadioGroup>
-                            </FormControl>
-                            <Box mt={6}></Box>
+
                             <Grid container>
                                 {
-                                    classrooms.map((classroom, index) => (
+                                    displayClassroom.map((classroom, index) => (
                                         <Grid item xs={12} md={3} key={index} style={{ marginTop: '16px', marginBottom: '16px' }}>
                                             <ClassroomCard classroom={classroom} />
                                         </Grid>

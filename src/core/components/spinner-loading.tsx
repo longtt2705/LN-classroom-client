@@ -1,14 +1,13 @@
 import { CircularProgress } from "@mui/material";
-import { HorizontalCenterContainer, VerticalCenterContainer } from "./container";
+import { CenterContainer } from "./container";
 
 
 const SpinnerLoading = () => {
     return (
-        <VerticalCenterContainer>
-            <HorizontalCenterContainer>
-                <CircularProgress />
-            </HorizontalCenterContainer>
-        </VerticalCenterContainer>
+        <CenterContainer>
+            <CircularProgress />
+        </CenterContainer>
+
     );
 }
 

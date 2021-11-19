@@ -2,7 +2,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import { Grid } from '@mui/material';
+import { Grid, Card, ListItemIcon, ListItemText, List, ListItem, ListItemButton,Divider  } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -15,6 +15,8 @@ import Typography from '@mui/material/Typography';
 import * as React from 'react';
 import { useAppDispatch } from '../../app/hooks';
 import { setModalOpen } from '../../slices/create-class-modal-sclice';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -54,10 +56,40 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+const AccountCard = styled(Card)(({ theme }) => ({
+  width: theme.spacing(50),
+  position: "absolute",
+  marginTop: theme.spacing(12),
+  marginLeft:theme.spacing(-30),
+}))
+
+const AccountList = styled(List)(({ theme }) => ({
+  width: theme.spacing(60),
+}))
+
+const AccountListItem = styled(ListItem)(({ theme }) => ({
+  width: "100%",
+  height: theme.spacing(8),
+  fontSize: theme.fontSizes.default,
+  color: theme.colors.background.primary,
+}))
+
+const AccountListItemButton = styled(ListItemButton)(({ theme }) => ({
+  width: "100%",
+  height: theme.spacing(8)
+}))
+
+const Line=styled(Divider)(({theme})=>({
+  marginTop:theme.spacing(3),
+  marginBottom: theme.spacing(3)
+}))
+
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
+  
+  const [isAccountButton,setIsAccountButton]=React.useState(false)
 
   const dispatch = useAppDispatch()
 
@@ -83,6 +115,10 @@ export default function PrimarySearchAppBar() {
   const handleCreateClass = () => {
     dispatch(setModalOpen())
     handleMenuClose();
+  }
+
+  const handleAccountButton=()=>{
+    setIsAccountButton(!isAccountButton)
   }
 
   const menuId = 'primary-search-account-menu';
@@ -172,9 +208,39 @@ export default function PrimarySearchAppBar() {
               aria-controls={menuId}
               aria-haspopup="true"
               color="inherit"
+              onClick={handleAccountButton}
             >
               <AccountCircle />
             </IconButton>
+            {isAccountButton?
+            (
+              <AccountCard>
+              <AccountList>
+                <AccountListItem disablePadding>
+                  <AccountListItemButton>
+                    <ListItemIcon>
+                      <PersonOutlineIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="My profile" />
+                  </AccountListItemButton>
+                </AccountListItem>
+                <Line/>
+                <AccountListItem disablePadding>
+                  <AccountListItemButton>
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </AccountListItemButton>
+                </AccountListItem>
+              </AccountList>
+            </AccountCard>
+            ):
+            (
+              <>
+              </>
+            )
+            }
           </Box>
         </Toolbar>
       </AppBar>

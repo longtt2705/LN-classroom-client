@@ -76,7 +76,6 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
                                         <Grid item xs={12} md={3} key={index} style={{ marginTop: '16px', marginBottom: '16px' }}>
                                             <ClassroomCard classroom={classroom} />
                                         </Grid>
-
                                     ))
                                 }
                             </Grid>

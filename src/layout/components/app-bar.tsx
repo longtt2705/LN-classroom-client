@@ -92,6 +92,7 @@ export default function PrimarySearchAppBar() {
     React.useState<null | HTMLElement>(null);
 
   const [isAccountButton, setIsAccountButton] = React.useState(false)
+
   const history = useHistory()
   const dispatch = useAppDispatch()
 
@@ -224,6 +225,7 @@ export default function PrimarySearchAppBar() {
               aria-controls={menuId}
               aria-haspopup="true"
               color="inherit"
+              onClick={handleAccountButton}
             >
               <AccountCircle />
             </IconButton>

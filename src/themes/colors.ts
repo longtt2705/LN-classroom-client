@@ -6,7 +6,9 @@ export interface Colors {
     },
     texting: {
         sideBarLabel: string,
-        textLabel: string
+        textLabel: string,
+        button:string,
+        classcode:string,
     }
 }
 
@@ -19,7 +21,9 @@ const colors = {
     texting: {
         sideBarLabel: '#5f6368',
         textLabel: '#0a69a3',
-    },
+        button:"#0E6E2E",
+        classcode:"#5F7076"
+    }
 }
 
 export default colors;

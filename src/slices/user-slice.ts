@@ -11,7 +11,9 @@ export interface User {
     lastName: string,
     username: string,
     password?: string,
-    isActive?: boolean
+    isActive?: boolean,
+    provider?: string,
+    studentId?: string,
 };
 
 interface InitialState {
@@ -31,7 +33,7 @@ export const registerUser = createAsyncThunk(
     'users/registerUser',
     async (info: User | any, thunkApi) => {
         try {
-            const response = await userApi.registerUser({
+            const response = await authApi.registerUser({
                 firstName: info.firstName,
                 lastName: info.lastName,
                 email: info.email,
@@ -80,6 +82,48 @@ export const loginUser = createAsyncThunk(
     }
 )
 
+
+
+export const updateProfile = createAsyncThunk(
+    'users/updateProfile',
+    async (params: userApi.UpdateProfileParams | any, thunkApi) => {
+        try {
+            const response = await userApi.updateProfile(params)
+            thunkApi.dispatch(createAlert({
+                message: "Update profile successfully!",
+                severity: 'success'
+            }))
+            return response.data
+        } catch (err) {
+            thunkApi.dispatch(createAlert({
+                message: "Error when update profile!",
+                severity: 'error'
+            }))
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
+
+export const changePassword = createAsyncThunk(
+    'users/changePassword',
+    async (payload: { oldPassword: string, newPassword: string } | any, thunkApi) => {
+        try {
+            const response = await userApi.changePassword(payload)
+            thunkApi.dispatch(createAlert({
+                message: "Change password successfully!",
+                severity: 'success'
+            }))
+            return response.data
+        } catch (err) {
+            thunkApi.dispatch(createAlert({
+                message: "Error when changing password!",
+                severity: 'error'
+            }))
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
+
 export const checkAuthentication = createAsyncThunk(
     'users/checkAuthentication',
     async (_, thunkApi) => {
@@ -113,6 +157,9 @@ const userSlice = createSlice({
         });
         builder.addCase(checkAuthentication.rejected, (state) => {
             state.isLoading = false
+        });
+        builder.addCase(updateProfile.fulfilled, (state, action) => {
+            state.user = action.payload
         });
     }
 })

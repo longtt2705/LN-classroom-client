@@ -1,7 +1,9 @@
 import HomeIcon from '@mui/icons-material/Home';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import Home from '../core/home';
-
+import UserProfile from '../core/user-profile';
+import PersonIcon from '@mui/icons-material/Person';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 export interface IRoute {
     name: RouteName,
     component: any,
@@ -13,7 +15,7 @@ export interface IRoute {
 
 export enum RouteName {
     HOME = 'Home',
-    EXPLORE = 'Explore'
+    PROFILE = 'Profile'
 }
 
 const RouteList: IRoute[] = [
@@ -24,6 +26,14 @@ const RouteList: IRoute[] = [
         exactPath: true,
         unselectedIcon: HomeOutlinedIcon,
         selectedIcon: HomeIcon,
+    },
+    {
+        name: RouteName.PROFILE,
+        component: UserProfile,
+        path: "/profile",
+        exactPath: true,
+        unselectedIcon: PersonOutlineIcon,
+        selectedIcon: PersonIcon,
     },
 ]
 

@@ -1,3 +1,4 @@
+import { User } from '../slices/user-slice'
 import api from './api'
 
 const BASE_URL = 'auth/'
@@ -13,3 +14,12 @@ export const loginUserWithGoogle = () => {
 export const checkAuthentication = () => {
     return api.get(BASE_URL)
 }
+
+export const registerUser = (user: User) => {
+    return api.post(BASE_URL + "register", user)
+}
+
+export const logout = () => {
+    return api.post(BASE_URL + "logout")
+}
+

@@ -7,14 +7,15 @@ import { useAppDispatch, useAppSelector } from './app/hooks';
 import ListRouter from "./app/routes";
 import ClassroomDetail from './core/classroom-detail';
 import AlertSnackBar from './core/components/alert';
-import LoadingScreen from './core/components/loading-screen';
 import PageNotFound from './core/components/page-not-found';
 import LoginPage from './core/signin';
 import RegisterPage from './core/signup';
 import Layout from './layout';
 import { checkAuthentication } from './slices/user-slice';
+import LoadingScreen from './core/components/loading-screen';
 import Invitation from './core/invitation';
 import { getAllClassroom } from './slices/classroom-slice';
+import UserProfile from './core/user-profile';
 
 const PRE_URL = 'preUrl'
 
@@ -68,6 +69,7 @@ const App = () => {
                         ))}
                         <Route exact path={"/classrooms/:id"} component={ClassroomDetail} />
                         <Route exact path={"/invite/:token"} component={Invitation} />
+                        <Route exact path={"/profile"} component={UserProfile} />
                         <Route path={"/"} component={PageNotFound} />
                     </Layout>)
             }

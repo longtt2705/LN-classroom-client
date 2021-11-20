@@ -16,13 +16,15 @@ export interface Classroom {
 };
 
 interface ClassroomState {
-    classrooms: Classroom[],
+    enrolledClassrooms: Classroom[],
+    teachingClassrooms: Classroom[],
     searchResult: Classroom[],
     isLoading: boolean
 }
 
 const initialState: ClassroomState = {
-    classrooms: [],
+    enrolledClassrooms: [],
+    teachingClassrooms: [],
     searchResult: [],
     isLoading: false
 };
@@ -81,14 +83,15 @@ const classroomSlice = createSlice({
             state.isLoading = true
         });
         builder.addCase(getAllClassroom.fulfilled, (state, action) => {
-            state.classrooms = action.payload
+            state.enrolledClassrooms = action.payload.enrolledClassrooms
+            state.teachingClassrooms = action.payload.teachingClassrooms
             state.isLoading = false
         });
         builder.addCase(getAllClassroom.rejected, (state) => {
             state.isLoading = false
         });
         builder.addCase(createClassroom.fulfilled, (state, action) => {
-            state.classrooms.push(action.payload)
+            state.teachingClassrooms.push(action.payload)
         });
     }
 })

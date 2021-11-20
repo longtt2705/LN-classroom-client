@@ -1,6 +1,7 @@
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FunctionComponent } from "react";
+import { useHistory } from "react-router-dom";
 import { CLASSROOM_CARD_MEDIA_HEIGHT, CLASSROOM_CARD_WIDTH } from "../../shared/styles";
 import { Classroom } from "../../slices/classroom-slice";
 
@@ -16,8 +17,14 @@ const Description = styled(Typography)({
 
 
 const ClassroomCard: FunctionComponent<ClassroomCardProps> = ({ classroom }) => {
+    const history = useHistory()
+
+    const handleClick = () => {
+        history.push(`/classrooms/${classroom._id}`)
+    }
+
     return (
-        <Card sx={{ maxWidth: CLASSROOM_CARD_WIDTH }}>
+        <Card sx={{ maxWidth: CLASSROOM_CARD_WIDTH }} onClick={handleClick}>
             <CardActionArea>
                 <CardMedia
                     component="img"

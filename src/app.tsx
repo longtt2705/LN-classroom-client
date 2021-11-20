@@ -1,37 +1,43 @@
-import Layout from './layout';
+import { useEffect } from 'react';
 import {
-    BrowserRouter as Router,
-    Route,
-    Switch,
-    Redirect
+    Redirect, Route,
+    Switch, useHistory, useLocation
 } from "react-router-dom";
-import ListRouter from "./app/routes"
-import LoginPage from './core/signin'
-import RegisterPage from './core/signup'
+import { useAppDispatch, useAppSelector } from './app/hooks';
+import ListRouter from "./app/routes";
+import ClassroomDetail from './core/classroom-detail';
 import AlertSnackBar from './core/components/alert';
 import PageNotFound from './core/components/page-not-found';
-import { useAppDispatch, useAppSelector } from './app/hooks';
-import { useEffect, useState } from 'react';
+import LoginPage from './core/signin';
+import RegisterPage from './core/signup';
+import Layout from './layout';
 import { checkAuthentication } from './slices/user-slice';
-import { useHistory } from 'react-router-dom'
 import LoadingScreen from './core/components/loading-screen';
 import Invitation from './core/invitation';
 import { getAllClassroom } from './slices/classroom-slice';
 import UserProfile from './core/user-profile';
 
+const PRE_URL = 'preUrl'
 
 const App = () => {
     const isAuthenticated = useAppSelector((state) => state.userReducer.isAuthenticated)
     const isLoading = useAppSelector((state) => state.userReducer.isLoading)
+    const preUrl = useAppSelector((state) => state.routeReducer.preLoginUrl)
     const history = useHistory()
+    const location = useLocation()
     const dispatch = useAppDispatch()
+
+
     useEffect(() => {
         dispatch(checkAuthentication())
     }, [])
 
     useEffect(() => {
         if (isAuthenticated) {
-            history && history.push("/")
+            dispatch(getAllClassroom())
+            const preUrl = localStorage.getItem(PRE_URL) || "/"
+            history && history.push(preUrl)
+            localStorage.removeItem(PRE_URL)
         }
 
     }, [isAuthenticated])
@@ -44,7 +50,11 @@ const App = () => {
                     (<Switch>
                         <Route exact path={"/login"} component={LoginPage} />
                         <Route exact path={"/register"} component={RegisterPage} />
-                        <Route path={"/"} render={() => <Redirect to='/login' />} />
+                        <Route path={"/"} render={() => {
+                            if (location.pathname !== '/')
+                                localStorage.setItem(PRE_URL, location.pathname)
+                            return <Redirect to='/login' />
+                        }} />
                     </Switch>) :
                     (<Layout>
                         {ListRouter.map((route, index) => (

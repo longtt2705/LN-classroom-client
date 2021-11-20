@@ -6,6 +6,7 @@ import { ERROR_MESSAGE, LOGIN_FAILED } from "../shared/messages";
 import { createAlert } from "./alert-slice";
 
 export interface User {
+    _id?: string,
     email: string,
     firstName: string,
     lastName: string,

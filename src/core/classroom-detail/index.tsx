@@ -53,4 +53,4 @@ const ClassroomDetail: FunctionComponent<ClassroomProps> = () => {
     );
 }
 
-export default Classroom;
+export default ClassroomDetail;

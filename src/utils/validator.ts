@@ -2,38 +2,15 @@ import isStrongPassword from "validator/lib/isStrongPassword"
 import isEmpty from "validator/lib/isEmpty"
 import isLength from "validator/lib/isLength"
 import isEmail from "validator/lib/isEmail"
-import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE } from "../shared/messages"
+import isInt from "validator/lib/isInt"
+import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE, STUDENT_ID_WRONG } from "../shared/messages"
 import { useState } from "react"
-import { User } from '../slices/user-slice'
 
-const usernameMinLength = 6
-
-export const passwordValidation = (password: string) => {
-    if (isStrongPassword(password)) {
+export const studentIdValidation = (stringToValidate: string) => {
+    if (isInt(stringToValidate)) {
         return NO_MESSAGE
     }
-    return NOT_STRONG_PASSWORD_ERROR_MESSAGE
-}
-
-export const usernameValidation = (username: string) => {
-    if (isLength(username, { min: usernameMinLength })) {
-        return NO_MESSAGE
-    }
-    return createMessageInRangeError(usernameMinLength)
-}
-
-export const emailValidation = (email: string) => {
-    if (isEmail(email)) {
-        return NO_MESSAGE
-    }
-    return NOT_EMAIL_ERROR_MESSAGE
-}
-
-export const notEmptyValidation = (stringToValidate: string) => {
-    if (!isEmpty(stringToValidate)) {
-        return NO_MESSAGE
-    }
-    return NOT_EMPTY_ERROR_MESSAGE
+    return STUDENT_ID_WRONG
 }
 
 
@@ -166,4 +143,34 @@ export const useValidatorManagement = () => {
     const [manager, _] = useState(() => new ValidatorManagement())
 
     return manager
+}
+
+const usernameMinLength = 6
+
+export const passwordValidation = (password: string) => {
+    if (isStrongPassword(password)) {
+        return NO_MESSAGE
+    }
+    return NOT_STRONG_PASSWORD_ERROR_MESSAGE
+}
+
+export const usernameValidation = (username: string) => {
+    if (isLength(username, { min: usernameMinLength })) {
+        return NO_MESSAGE
+    }
+    return createMessageInRangeError(usernameMinLength)
+}
+
+export const emailValidation = (email: string) => {
+    if (isEmail(email)) {
+        return NO_MESSAGE
+    }
+    return NOT_EMAIL_ERROR_MESSAGE
+}
+
+export const notEmptyValidation = (stringToValidate: string) => {
+    if (!isEmpty(stringToValidate)) {
+        return NO_MESSAGE
+    }
+    return NOT_EMPTY_ERROR_MESSAGE
 }

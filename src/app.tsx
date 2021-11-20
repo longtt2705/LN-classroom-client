@@ -15,6 +15,9 @@ import { useEffect, useState } from 'react';
 import { checkAuthentication } from './slices/user-slice';
 import { useHistory } from 'react-router-dom'
 import LoadingScreen from './core/components/loading-screen';
+import Invitation from './core/invitation';
+import { getAllClassroom } from './slices/classroom-slice';
+import UserProfile from './core/user-profile';
 
 
 const App = () => {
@@ -54,6 +57,9 @@ const App = () => {
                                 )}
                             />
                         ))}
+                        <Route exact path={"/classrooms/:id"} component={ClassroomDetail} />
+                        <Route exact path={"/invite/:token"} component={Invitation} />
+                        <Route exact path={"/profile"} component={UserProfile} />
                         <Route path={"/"} component={PageNotFound} />
                     </Layout>)
             }

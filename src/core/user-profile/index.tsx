@@ -1,14 +1,15 @@
-import { Box, TextField, Link, Input, FormControl, InputLabel, InputAdornment, IconButton, Typography, Button, Grid, Avatar } from '@mui/material'
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { FunctionComponent, MouseEvent, useState } from "react"
-import { styled } from '@mui/material/styles';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-
-const HorizontalCenterContainer = styled(Box)(({
-    width: "60%",
-    margin: "0 auto"
-}));
+import { Avatar, Box, Button, Grid, Link, TextField, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import axios from 'axios';
+import { get } from 'lodash';
+import { FunctionComponent, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { RouteName } from '../../app/routes';
+import { selectRoute } from '../../slices/route-slice';
+import { changePassword, updateProfile } from '../../slices/user-slice';
+import { notEmptyValidation, passwordValidation, studentIdValidation, useValidator, useValidatorManagement } from '../../utils/validator';
+import { HorizontalCenterContainer } from '../components/container';
 
 const ColumnBox = styled(Box)(({ theme }) => ({
     display: "flex",
@@ -21,25 +22,18 @@ const ColumnBox = styled(Box)(({ theme }) => ({
 const RowBox = styled(Box)(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     width: "100%",
-    marginBottom: theme.spacing(5)
 }));
 
 const ChangePass = styled(Link)(({ theme }) => ({
-    fontSize: theme.fontSizes.changePass,
     marginLeft: theme.spacing(3),
 }))
 
-const FormChangePass = styled(FormControl)(({ theme }) => ({
+const FormChangePass = styled(Box)(({ theme }) => ({
     width: "90%",
     marginLeft: theme.spacing(5),
     marginTop: theme.spacing(3)
-}))
-
-const InputLabelPass = styled(InputLabel)(({ theme }) => ({
-    marginLeft: theme.spacing(-3),
-    fontSize: theme.fontSizes.changePass
 }))
 
 const Label = styled(Typography)(({ theme }) => ({
@@ -50,14 +44,22 @@ const Label = styled(Typography)(({ theme }) => ({
 const ButtonChangePass = styled(Button)(({ theme }) => ({
     width: theme.spacing(25),
     height: theme.spacing(10),
-    margin: `${theme.spacing(5)} ${theme.spacing(10)}`
+    marginLeft: `${theme.spacing(3)}`
 }))
 
 const GridButton = styled(Grid)(({ theme }) => ({
     display: "flex",
     flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+}))
+
+const GridButtonChangePass = styled(Grid)(({ theme }) => ({
+    display: "flex",
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    // marginTop: theme.spacing(-8)
 }))
 
 const AvatarProfile = styled(Avatar)(({ theme }) => ({
@@ -78,40 +80,77 @@ const IconAvatar = styled(PermIdentityIcon)(({ theme }) => ({
 }))
 
 const ChangeAvatarButton = styled(Button)(({ theme }) => ({
-    width: "30%",
-    height: theme.spacing(7),
     marginBottom: theme.spacing(5),
     marginLeft: "auto",
     marginRight: "auto",
-    borderRadius: theme.spacing(5)
+    borderRadius: theme.spacing(1)
 }))
 
-const ChangeProfile: FunctionComponent = () => {
+const UserProfile: FunctionComponent = () => {
+    const user = useAppSelector((state) => state.userReducer.user)
     const [changePass, setChangePass] = useState(false)
-    const [showPass, setShowPass] = useState(false)
-    const oldPassword = "oldpassword"
-    const newPassword = "newpassword"
-    const confPassword = "confirmpass"
+    const profileValidatorManagement = useValidatorManagement()
+    const firstName = useValidator("firstName", notEmptyValidation, user?.firstName, profileValidatorManagement)
+    const lastName = useValidator("lastName", notEmptyValidation, user?.lastName, profileValidatorManagement)
+    const studentId = useValidator("studentId", studentIdValidation, user?.studentId || "", profileValidatorManagement)
+    const handleOnChangeProfile = profileValidatorManagement.handleOnChange
 
+    const passwordValidatorManagement = useValidatorManagement()
+    const oldPassword = useValidator("oldPassword", notEmptyValidation, "", passwordValidatorManagement)
+    const newPassword = useValidator("newPassword", passwordValidation, "", passwordValidatorManagement)
+    const retypePassword = useValidator("newPassword", passwordValidation, "", passwordValidatorManagement)
+    const handleOnChangePassword = passwordValidatorManagement.handleOnChange
+
+    const handleChangePassword = async () => {
+        passwordValidatorManagement.validate()
+        if (!passwordValidatorManagement.hasError() && isRetypePasswordSame()) {
+            const { retypePassword, ...payload } = passwordValidatorManagement.getValuesObject()
+            try {
+                await dispatch(changePassword(payload)).unwrap()
+                passwordValidatorManagement.reset()
+                setChangePass(false)
+            } catch (err) {
+                // ignore
+            }
+        }
+    };
+
+    const dispatch = useAppDispatch()
     const handleChangePassButton = () => {
         setChangePass(!changePass)
     }
 
-    const handleShowPass = () => {
-        setShowPass(!showPass)
+    const isRetypePasswordSame = () => {
+        return retypePassword.value === newPassword.value
     }
 
-    const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>): void => {
-        event.preventDefault();
+    const handleSubmit = async (event: any) => {
+        event.preventDefault()
+        profileValidatorManagement.validate()
+        if (!profileValidatorManagement.hasError()) {
+            const payload = profileValidatorManagement.getValuesObject()
+            try {
+                await dispatch(updateProfile(payload)).unwrap()
+            } catch (err) {
+                if (axios.isAxiosError(err)) {
+                    const studentIdError = get(err.response?.data, "message")
+                    studentIdError && studentId.setError(studentIdError)
+                }
+            }
+        }
     };
+
+    useEffect(() => {
+        dispatch(selectRoute(RouteName.PROFILE))
+    }, [])
+
+    const canChangePassword = !passwordValidatorManagement.hasError() && isRetypePasswordSame()
 
     return (
         <HorizontalCenterContainer>
             <Box
-                component="form"
-                sx={{ '& .MuiTextField-root': { m: 1, width: "100%" }, }}
-                noValidate
-                autoComplete="off"
+                component="main"
+                sx={{ m: 1, width: "30%" }}
             >
                 <ColumnBox>
                     <AvatarProfile>
@@ -120,145 +159,149 @@ const ChangeProfile: FunctionComponent = () => {
                     <ChangeAvatarButton variant="outlined">Change Avatar</ChangeAvatarButton>
                     <RowBox>
                         <TextField
-                            id="outlined-disabled"
-                            label="Firstname"
-                            defaultValue="Tran"
-                            InputLabelProps={{ style: { fontSize: 18, fontWeight: 550 } }}
+                            margin="normal"
+                            required
+                            fullWidth
+                            label="First name"
+                            error={firstName.hasError()}
+                            helperText={firstName.error}
+                            onChange={handleOnChangeProfile(firstName)}
+                            onBlur={() => firstName.validate()}
+                            value={firstName.value}
+                            sx={{ mr: 1 }}
                         />
                         <TextField
-                            id="outlined-disabled"
-                            label="Lastname"
-                            defaultValue="Nang"
-                            InputLabelProps={{ style: { fontSize: 18, fontWeight: 550 } }}
+                            margin="normal"
+                            required
+                            fullWidth
+                            label="Last name"
+                            error={lastName.hasError()}
+                            helperText={lastName.error}
+                            onChange={handleOnChangeProfile(lastName)}
+                            value={lastName.value}
+                            onBlur={() => lastName.validate()}
+                            sx={{ ml: 1 }}
                         />
                     </RowBox>
-                    <RowBox>
-                        <TextField
-                            disabled
-                            id="outlined-read-only-input"
-                            label="Email"
-                            defaultValue="abc@gmail.com"
-                            InputLabelProps={{ style: { fontSize: 18, fontWeight: 550 } }}
-                            InputProps={{
-                                readOnly: true,
-                            }}
-                        />
-                    </RowBox>
-                    <RowBox>
-                        <TextField
-                            disabled
-                            id="realonly"
-                            label="Username"
-                            defaultValue="abcxyz"
-                            InputLabelProps={{ style: { fontSize: 18, fontWeight: 550 } }}
-                            InputProps={{
-                                readOnly: true,
-                            }}
-                        />
-                    </RowBox>
+                    <Box mt={(theme) => theme.spacing(4)} />
                     <TextField
                         disabled
                         id="outlined-read-only-input"
-                        label="Student Id"
-                        defaultValue="18120475"
+                        label="Email"
+                        defaultValue={user?.email}
                         InputLabelProps={{ style: { fontSize: 18, fontWeight: 550 } }}
-                        InputProps={{
-                            readOnly: true,
-                        }}
                     />
-                    {!changePass ? (
-                        <ChangePass
-                            href="#"
-                            underline="always"
-                            onClick={handleChangePassButton}
-                        >
-                            {'Change Password?'}
-                        </ChangePass>
-                    ) :
-                        (
-                            <FormChangePass>
-                                <Label>Change Password</Label>
+                    <Box mt={(theme) => theme.spacing(4)} />
+                    <TextField
+                        disabled
+                        id="realonly"
+                        label="Username"
+                        defaultValue={user?.username}
+                        InputLabelProps={{ style: { fontSize: 18, fontWeight: 550 } }}
+                    />
+                    <Box mt={(theme) => theme.spacing(4)} />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Student Id"
+                        error={studentId.hasError()}
+                        helperText={studentId.error}
+                        onChange={handleOnChangeProfile(studentId)}
+                        onBlur={() => studentId.validate()}
+                        value={studentId.value}
+                    />
+                    <Box mt={(theme) => theme.spacing(4)} />
+
+                    {
+                        user?.provider === 'local' &&
+                        (!changePass ? (
+                            <>
+                                <ChangePass
+                                    href="#"
+                                    underline="always"
+                                    onClick={handleChangePassButton}
+                                >
+                                    {'Change Password?'}
+                                </ChangePass>
+                            </>)
+                            :
+                            (
                                 <FormChangePass>
-                                    <InputLabelPass htmlFor="standard-adornment-password">Old Password</InputLabelPass>
-                                    <Input
-                                        id="standard-adornment-password"
-                                        type={showPass ? 'text' : 'password'}
-                                        value={oldPassword}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label="toggle password visibility"
-                                                    onClick={handleShowPass}
-                                                    onMouseDown={handleMouseDownPassword}
-                                                >
-                                                    {showPass ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
+                                    <Label>Change Password</Label>
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        label="Old Password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        onChange={handleOnChangePassword(oldPassword)}
+                                        error={oldPassword.hasError()}
+                                        helperText={oldPassword.error}
+                                        onBlur={() => oldPassword.validate()}
                                     />
-                                </FormChangePass>
-                                <FormChangePass>
-                                    <InputLabelPass htmlFor="standard-adornment-password">New Password</InputLabelPass>
-                                    <Input
-                                        id="standard-adornment-password"
-                                        type={showPass ? 'text' : 'password'}
-                                        value={newPassword}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label="toggle password visibility"
-                                                    onClick={handleShowPass}
-                                                    onMouseDown={handleMouseDownPassword}
-                                                >
-                                                    {showPass ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        label="New Password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        error={newPassword.hasError()}
+                                        helperText={newPassword.error}
+                                        onChange={handleOnChangePassword(newPassword)}
+                                        onBlur={() => newPassword.validate()}
                                     />
-                                </FormChangePass>
-                                <FormChangePass>
-                                    <InputLabelPass htmlFor="standard-adornment-password">Comfirm Password</InputLabelPass>
-                                    <Input
-                                        id="standard-adornment-password"
-                                        type={showPass ? 'text' : 'password'}
-                                        value={confPassword}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label="toggle password visibility"
-                                                    onClick={handleShowPass}
-                                                    onMouseDown={handleMouseDownPassword}
-                                                >
-                                                    {showPass ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        label="Confirm Password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        error={!isRetypePasswordSame()}
+                                        helperText={!isRetypePasswordSame() ? "This field and new password must be the same!" : ""}
+                                        onChange={handleOnChangePassword(retypePassword)}
                                     />
+                                    <GridButton>
+                                        <ButtonChangePass
+                                            variant="contained"
+                                            color="success"
+                                            disabled={!canChangePassword}
+                                            onClick={handleChangePassword}
+                                        >
+                                            Change
+                                        </ButtonChangePass>
+                                        <ButtonChangePass
+                                            variant="outlined"
+                                            color="error"
+                                            onClick={handleChangePassButton}
+                                        >
+                                            Cancel
+                                        </ButtonChangePass>
+                                    </GridButton>
                                 </FormChangePass>
-                                <GridButton>
-                                    <ButtonChangePass
-                                        variant="contained"
-                                        color="success"
-                                    >
-                                        Save
-                                    </ButtonChangePass>
-                                    <ButtonChangePass
-                                        variant="contained"
-                                        color="error"
-                                        onClick={handleChangePassButton}
-                                    >
-                                        Cancel
-                                    </ButtonChangePass>
-                                </GridButton>
-                            </FormChangePass>
-                        )
+                            ))
                     }
                 </ColumnBox>
-
+                {
+                    <GridButtonChangePass>
+                        <ButtonChangePass
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            onClick={handleSubmit}
+                            disabled={profileValidatorManagement.hasError()}
+                        >
+                            Save
+                        </ButtonChangePass>
+                    </GridButtonChangePass>
+                }
             </Box>
-        </HorizontalCenterContainer>
+        </HorizontalCenterContainer >
 
     );
 }
 
-export default ChangeProfile;
+export default UserProfile;

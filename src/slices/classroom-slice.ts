@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import * as classroomApi from '../services/classroom';
 import { ERROR_MESSAGE, NO_MESSAGE } from "../shared/messages";
+import { copyToClipboard } from "../utils/function";
 import { createAlert } from "./alert-slice";
 
 export interface Classroom {
@@ -11,6 +12,8 @@ export interface Classroom {
     schoolYear: string,
     teachersId?: string[],
     studentsId?: string[],
+    classCode?: string,
+    role?: 'student' | 'teacher' | 'owner',
     description?: string,
     createdAt?: Date
 };
@@ -72,6 +75,67 @@ export const createClassroom = createAsyncThunk(
     }
 )
 
+export const copyInviteLink = createAsyncThunk(
+    'classrooms/copyInviteLink',
+    async (payload: { classId: string | undefined, isStudent: boolean }, thunkApi) => {
+        try {
+            const response = await classroomApi.getInviteLink(payload.classId, payload.isStudent)
+            await copyToClipboard(response.data || "")
+            thunkApi.dispatch(createAlert({
+                message: "Copy class invite link successfully!",
+                severity: "success"
+            }))
+            return response.data
+        } catch (err) {
+            thunkApi.dispatch(createAlert({
+                message: "There're errors when trying to copy invite link!",
+                severity: "error"
+            }))
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
+
+export const joinClassroomByClassCode = createAsyncThunk(
+    'classrooms/joinClassroomByClassCode',
+    async (classCode: string, thunkApi) => {
+        try {
+            const response = await classroomApi.joinClassroomByClassCode(classCode)
+            thunkApi.dispatch(createAlert({
+                message: `Join class ${response.data.name} successfully!`,
+                severity: 'success'
+            }))
+            return response.data
+        } catch (err) {
+            thunkApi.dispatch(createAlert({
+                message: `Cannot join classroom using ${classCode}`,
+                severity: 'error'
+            }))
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
+
+export const resetClassCode = createAsyncThunk(
+    'classrooms/resetClassCode',
+    async (classId: string | undefined, thunkApi) => {
+        try {
+            const response = await classroomApi.resetClassCode(classId)
+            thunkApi.dispatch(createAlert({
+                message: "Reset class code successfully!",
+                severity: "success"
+            }))
+            return response.data
+        } catch (err) {
+            thunkApi.dispatch(createAlert({
+                message: "There're errors when trying to reset class code!",
+                severity: "error"
+            }))
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
+
 const classroomSlice = createSlice({
     name: 'Classroom',
     initialState,
@@ -92,6 +156,16 @@ const classroomSlice = createSlice({
         });
         builder.addCase(createClassroom.fulfilled, (state, action) => {
             state.teachingClassrooms.push(action.payload)
+        });
+        builder.addCase(joinClassroomByClassCode.fulfilled, (state, action) => {
+            state.enrolledClassrooms.push(action.payload)
+        });
+        builder.addCase(resetClassCode.fulfilled, (state, action) => {
+            const result = action.payload
+            const index = state.teachingClassrooms.findIndex(classroom => classroom._id === result._id)
+            if (index >= 0) {
+                state.teachingClassrooms[index] = { ...state.teachingClassrooms[index], classCode: result.classCode }
+            }
         });
     }
 })

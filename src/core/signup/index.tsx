@@ -61,8 +61,8 @@ export default function SignIn() {
                 if (axios.isAxiosError(err)) {
                     const usernameError = get(err.response?.data, "username")
                     const emailError = get(err.response?.data, "email")
-                    username.setError(usernameError)
-                    email.setError(emailError)
+                    usernameError && username.setError(usernameError)
+                    emailError && email.setError(emailError)
                 }
             }
         }

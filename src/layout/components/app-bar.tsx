@@ -17,6 +17,7 @@ import { useAppDispatch } from '../../app/hooks';
 import { setCreateClassModalOpen } from '../../slices/create-class-modal-sclice';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useOnClickOutside } from 'usehooks-ts';
 import { useHistory } from 'react-router-dom'
 import { logout } from '../../services/auth';
 import { setJoinClassModalOpen } from '../../slices/join-class-modal-slice';
@@ -130,6 +131,12 @@ export default function PrimarySearchAppBar() {
     setIsAccountButton(!isAccountButton)
   }
 
+  const ref = React.useRef(null)
+  const handleClickOutside = () => {
+    setIsAccountButton(false)
+  }
+
+  useOnClickOutside(ref, handleClickOutside)
   const handleMyProfileClick = () => {
     history.push('/profile')
     setIsAccountButton(false)
@@ -165,6 +172,7 @@ export default function PrimarySearchAppBar() {
       <MenuItem onClick={handleCreateClass}>Create class</MenuItem>
     </Menu>
   );
+
 
   return (
     <Box sx={{ flexGrow: 0, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -225,6 +233,7 @@ export default function PrimarySearchAppBar() {
               </Badge>
             </IconButton> */}
             <IconButton
+              ref={ref}
               size="large"
               edge="end"
               aria-label="account of current user"

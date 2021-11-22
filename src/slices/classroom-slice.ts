@@ -105,6 +105,7 @@ export const joinClassroomByClassCode = createAsyncThunk(
                 message: `Join class ${response.data.name} successfully!`,
                 severity: 'success'
             }))
+            thunkApi.dispatch(getAllClassroom())
             return response.data
         } catch (err) {
             thunkApi.dispatch(createAlert({
@@ -157,9 +158,9 @@ const classroomSlice = createSlice({
         builder.addCase(createClassroom.fulfilled, (state, action) => {
             state.teachingClassrooms.push(action.payload)
         });
-        builder.addCase(joinClassroomByClassCode.fulfilled, (state, action) => {
-            state.enrolledClassrooms.push(action.payload)
-        });
+        // builder.addCase(joinClassroomByClassCode.fulfilled, (state, action) => {
+        //     state.enrolledClassrooms.push(action.payload)
+        // });
         builder.addCase(resetClassCode.fulfilled, (state, action) => {
             const result = action.payload
             const index = state.teachingClassrooms.findIndex(classroom => classroom._id === result._id)

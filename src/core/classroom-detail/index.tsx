@@ -37,6 +37,7 @@ const ClassroomDetail: FunctionComponent<ClassroomProps> = () => {
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue);
     };
+    console.log("ASFAS")
     return (
         classroom ? (<><TabContext value={value}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -47,8 +48,8 @@ const ClassroomDetail: FunctionComponent<ClassroomProps> = () => {
                     </TabList>
                 </HorizontalCenterContainer>
             </Box>
-            <TabPanel value="1"><MainStream classroom={classroom} /></TabPanel>
-            <TabPanel value="2"><People /></TabPanel>
+            <TabPanel value="1" key={1}><MainStream classroom={classroom} /></TabPanel>
+            <TabPanel value="2" key={2}><People classroom={classroom} /></TabPanel>
         </TabContext></>) : <PageNotFound />
     );
 }

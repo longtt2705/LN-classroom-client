@@ -1,11 +1,18 @@
-import PersonIcon from '@mui/icons-material/Person';
-import { Avatar, Box, Divider, Grid, List, ListItem, ListItemAvatar, ListItemText, Typography, ListItemButton, IconButton, Checkbox, Button, Card } from "@mui/material";
-import { styled } from '@mui/material/styles';
-import { FunctionComponent, useState } from 'react';
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PersonIcon from '@mui/icons-material/Person';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
+import { Avatar, Box, Button, Card, Checkbox, Divider, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { useOnClickOutside } from 'usehooks-ts';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { removeFromClassroom } from '../../../services/classroom';
+import { getUserDataById } from '../../../services/user';
+import { Classroom, getAllClassroom } from '../../../slices/classroom-slice';
+import { User } from '../../../slices/user-slice';
+import InviteModal from './modal';
 
 const HorizontalCenterContainer = styled(Box)(({
     display: "flex",
@@ -71,6 +78,22 @@ const ActionCard = styled(Card)(({ theme }) => ({
     zIndex: theme.fontSizes.default
 }))
 
+const MoreCard = styled(Card)(({ theme }) => ({
+    width: theme.spacing(50),
+    position: "absolute",
+    right: "-23%",
+    marginTop: theme.spacing(26),
+    zIndex: theme.fontSizes.default
+}))
+
+const MoreCardTeacher = styled(Card)(({ theme }) => ({
+    width: theme.spacing(40),
+    position: "absolute",
+    right: "-18%",
+    marginTop: theme.spacing(34),
+    zIndex: theme.fontSizes.default
+}))
+
 const SortCard = styled(Card)(({ theme }) => ({
     width: theme.spacing(40),
     position: "absolute",
@@ -95,41 +118,99 @@ const ActionSortListItemButton = styled(ListItemButton)(({ theme }) => ({
     height: theme.spacing(8)
 }))
 
-const People: FunctionComponent = () => {
+
+const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
     const [isActionClick, setIsActionClick] = useState(false)
     const [isSortClick, setIsSortClick] = useState(false)
-    const data = [
-        {
-            name: "1",
-            role: "teacher"
-        },
-        {
-            name: "2",
-            role: "teacher"
-        },
-        {
-            name: "3",
-            role: "student"
-        },
-        {
-            name: "4",
-            role: "student"
-        },
-        {
-            name: "5",
-            role: "student"
-        },
-        {
-            name: "6",
-            role: "student"
-        },
-        {
-            name: "7",
-            role: "student"
-        },
-    ]
-    const teachers = data.filter((e) => e.role === "teacher")
-    const students = data.filter((e) => e.role === "student")
+    const [isMoreClickStudent, setIsMoreClickStudent] = useState(-1)
+    const [isMoreClickTeacher, setIsMoreClickTeacher] = useState(-1)
+    const [isOpenModalTeacher, setIsOpenModalTeacher] = useState(false);
+    const [isOpenModalStudent, setIsOpenModalStudent] = useState(false);
+    const [isCheckAllStudent, setIsCheckAllStudent] = useState(false)
+    const [checkedStudents, setCheckedStudents] = useState<number[]>([])
+
+    const handleOpenModalTeacher = () => setIsOpenModalTeacher(true);
+    const handleCloseModalTeacher = () => setIsOpenModalTeacher(false);
+
+    const handleOpenModalStudent = () => setIsOpenModalStudent(true);
+    const handleCloseModalStudent = () => setIsOpenModalStudent(false);
+
+    const handleCheckAllStudent = () => {
+        if (!isCheckAllStudent) {
+            setIsCheckAllStudent(true)
+            let listStudent = []
+            for (let i = 0; i < students.length; i++) {
+                listStudent.push(i)
+            }
+            setCheckedStudents(listStudent)
+
+        } else {
+            setIsCheckAllStudent(false)
+            setCheckedStudents([])
+        }
+
+    }
+
+    const handleCheckStudent = (index: number) => {
+        const checkStudents = [...checkedStudents]
+        if (checkStudents.includes(index)) {
+            const value = index
+            const newCheckStudents = checkStudents.filter(checkStudent => checkStudent !== value)
+            setCheckedStudents(newCheckStudents)
+            setIsCheckAllStudent(false)
+        } else {
+            const newCheckStudents = [...checkStudents, index]
+            setCheckedStudents(newCheckStudents)
+            if (newCheckStudents.length === students.length) {
+                setIsCheckAllStudent(true)
+            }
+        }
+    }
+
+    const [teachers, setTeachers] = useState<User[]>([]);
+    const [students, setStudents] = useState<User[]>([]);
+    const user = useAppSelector((state => state.userReducer.user))
+
+    const promisifyGetUserData = (listId: string[], cb: any) => {
+        return listId.map((id) => getUser(id, cb))
+    }
+
+    const getUser = async (id: string, cb: any) => {
+        try {
+            const data = (await getUserDataById(id)).data
+            cb(data)
+        } catch (err) {
+            // ignore
+        }
+    }
+
+    const getUsersData = async () => {
+        setStudents([])
+        setTeachers([])
+        if (classroom.studentsId) {
+            await Promise.all(promisifyGetUserData(classroom.studentsId, (data: User) => setStudents((students) => [...students, data])))
+        }
+        if (classroom.teachersId) {
+            await Promise.all(promisifyGetUserData(classroom.teachersId, (data: User) => setTeachers(teachers => [...teachers, data])))
+        }
+    }
+    const dispatch = useAppDispatch()
+
+    const removeUser = async (userId: string | undefined, isStudent: boolean) => {
+        try {
+
+            await removeFromClassroom(classroom._id || "", userId || "", isStudent)
+            dispatch(getAllClassroom())
+        } catch (err) {
+            // ignore
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        getUsersData()
+    }, [classroom])
+
 
     const handleActionClick = () => {
         setIsActionClick(!isActionClick)
@@ -138,22 +219,47 @@ const People: FunctionComponent = () => {
     const handleSortClick = () => {
         setIsSortClick(!isSortClick)
     }
+
+    const handleMoreClickStudent = (index: number) => {
+        setIsMoreClickStudent(index)
+    }
+
+    const handleMoreClickTeacher = (index: number) => {
+        setIsMoreClickTeacher(index)
+    }
+
+
+    const ref = useRef(null)
+    const handleClickOutside = () => {
+        setIsActionClick(false)
+        setIsSortClick(false)
+        setIsMoreClickStudent(-1)
+        setIsMoreClickTeacher(-1)
+    }
+
+    // useOnClickOutside(ref, handleClickOutside)
     return (
         <>
             <HorizontalCenterContainer>
                 <Grid item xs={7} sx={{ width: "100%" }}>
                     <RowLabel>
                         <Typography sx={{ mt: 4, mb: 0 }} variant="h4" component="div" color="#085c9a">
-                            Teacher
+                            Teachers
                         </Typography>
-                        <TeacherInvite>
-                            <InviteIcon />
-                        </TeacherInvite>
+                        {
+                            (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                            (<TeacherInvite onClick={handleOpenModalTeacher}>
+                                <IconButton>
+                                    <InviteIcon />
+                                </IconButton>
+                            </TeacherInvite>)
+                        }
+                        <InviteModal classroom={classroom} isOpen={isOpenModalTeacher} onClose={handleCloseModalTeacher} isStudent={false} />
                     </RowLabel>
                     <Divider color="#085c9a" />
                     <List>
-                        {teachers.map((teacher) => (
-                            <ListItemButton>
+                        {teachers.map((teacher, index) => (
+                            <ListItemButton key={index}>
                                 <RowLabelItem>
                                     <ListItem>
                                         <ListItemAvatar>
@@ -165,13 +271,42 @@ const People: FunctionComponent = () => {
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText
-                                            primary={teacher.name}
+                                            primary={teacher.firstName + " " + teacher.lastName}
                                             secondary={null}
                                         />
                                     </ListItem>
-                                    <IconButton>
-                                        <MoreVertIcon />
-                                    </IconButton>
+                                    {
+                                        (classroom.role === 'owner' && teacher._id !== user?._id) &&
+                                        (
+                                            <>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        const value = index
+                                                        if (isMoreClickTeacher === value)
+                                                            handleMoreClickTeacher(-1)
+                                                        else
+                                                            handleMoreClickTeacher(value)
+                                                    }}
+                                                >
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                                {
+                                                    (isMoreClickTeacher === index) &&
+                                                    (
+                                                        <MoreCardTeacher>
+                                                            <ActionSortList>
+                                                                <ActionSortListItem disablePadding onClick={() => removeUser(teacher._id, false)}>
+                                                                    <ActionSortListItemButton>
+                                                                        <ListItemText primary="Remove" />
+                                                                    </ActionSortListItemButton>
+                                                                </ActionSortListItem>
+                                                            </ActionSortList>
+                                                        </MoreCardTeacher>
+                                                    )
+                                                }
+                                            </>
+                                        )
+                                    }
                                 </RowLabelItem>
                             </ListItemButton>
                         ))}
@@ -182,92 +317,95 @@ const People: FunctionComponent = () => {
                 <Grid item xs={7} sx={{ width: "100%" }}>
                     <RowLabel>
                         <Typography sx={{ mt: 4, mb: 0 }} variant="h4" component="div" color="#085c9a">
-                            Student
+                            Students
                         </Typography>
                         <MemberAndInvite>
                             <NumberMember>
                                 {students.length} students
                             </NumberMember>
-                            <InviteIcon />
+                            {
+                                (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                                (<IconButton
+                                    onClick={handleOpenModalStudent}
+                                >
+                                    <InviteIcon />
+                                </IconButton>)
+                            }
+                            <InviteModal classroom={classroom} isOpen={isOpenModalStudent} onClose={handleCloseModalStudent} isStudent={true} />
                         </MemberAndInvite>
                     </RowLabel>
                     <Divider color="#085c9a" />
                     <RowLabel>
-                        <CheckboxAction>
-                            <Checkbox />
-                            <Button
-                                variant={isActionClick ? "contained" : "outlined"}
-                                onClick={handleActionClick}
-                            >
-                                Action<ArrowDropDownIcon />
-                            </Button>
-                            {
-                                isActionClick ?
+                        {(classroom.role === 'owner' || classroom.role === 'teacher') &&
+                            (<><CheckboxAction>
+                                <Checkbox
+                                    onChange={handleCheckAllStudent}
+                                    checked={isCheckAllStudent}
+                                />
+                                <Button
+                                    ref={ref}
+                                    variant={isActionClick ? "contained" : "outlined"}
+                                    onClick={handleActionClick}
+                                >
+                                    Action<ArrowDropDownIcon />
+                                </Button>
+                                {
+                                    isActionClick &&
                                     (
                                         <ActionCard>
                                             <ActionSortList>
                                                 <ActionSortListItem disablePadding>
                                                     <ActionSortListItemButton>
-                                                        <ListItemText primary="Send mail" />
-                                                    </ActionSortListItemButton>
-                                                </ActionSortListItem>
-                                                <ActionSortListItem disablePadding>
-                                                    <ActionSortListItemButton>
-                                                        <ListItemText primary="Delete" />
-                                                    </ActionSortListItemButton>
-                                                </ActionSortListItem>
-                                                <ActionSortListItem disablePadding>
-                                                    <ActionSortListItemButton>
-                                                        <ListItemText primary="Hide" />
+                                                        <ListItemText primary="Remove" />
                                                     </ActionSortListItemButton>
                                                 </ActionSortListItem>
                                             </ActionSortList>
                                         </ActionCard>
-                                    ) :
-                                    (
-                                        <></>
                                     )
-                            }
-                        </CheckboxAction>
-                        <IconButton
-                            onClick={handleSortClick}
-                        >
-                            <SortByAlphaIcon />
-                        </IconButton>
+                                }
+                            </CheckboxAction>
+                                <IconButton
+                                    ref={ref}
+                                    onClick={handleSortClick}
+                                >
+                                    <SortByAlphaIcon />
+                                </IconButton></>)
+                        }
+
                         {
-                            isSortClick ?
-                                (
-                                    <SortCard>
-                                        <ActionSortList>
-                                            <ActionSortListItem disablePadding>
-                                                <ActionSortListItemButton>
-                                                    <ListItemText primary="Send mail" />
-                                                </ActionSortListItemButton>
-                                            </ActionSortListItem>
-                                            <ActionSortListItem disablePadding>
-                                                <ActionSortListItemButton>
-                                                    <ListItemText primary="Delete" />
-                                                </ActionSortListItemButton>
-                                            </ActionSortListItem>
-                                            <ActionSortListItem disablePadding>
-                                                <ActionSortListItemButton>
-                                                    <ListItemText primary="Hide" />
-                                                </ActionSortListItemButton>
-                                            </ActionSortListItem>
-                                        </ActionSortList>
-                                    </SortCard>
-                                ) :
-                                (
-                                    <></>
-                                )
+                            isSortClick &&
+                            (
+                                <SortCard>
+                                    <ActionSortList>
+                                        <ActionSortListItem disablePadding>
+                                            <ActionSortListItemButton>
+                                                <ListItemText primary="Sort by firstname" />
+                                            </ActionSortListItemButton>
+                                        </ActionSortListItem>
+                                        <ActionSortListItem disablePadding>
+                                            <ActionSortListItemButton>
+                                                <ListItemText primary="Sort by lastname" />
+                                            </ActionSortListItemButton>
+                                        </ActionSortListItem>
+                                    </ActionSortList>
+                                </SortCard>
+                            )
                         }
 
                     </RowLabel>
                     <List>
-                        {students.map((student) => (
-                            <ListItemButton>
+                        {students.map((student, index) => (
+                            <ListItemButton key={index}>
                                 <RowLabelItem>
-                                    <Checkbox />
+                                    {
+                                        (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                                        (
+                                            <Checkbox
+                                                onChange={() => handleCheckStudent(index)}
+                                                checked={checkedStudents.includes(index)}
+                                            />
+                                        )
+                                    }
                                     <ListItem>
                                         <ListItemAvatar>
                                             <Avatar>
@@ -278,15 +416,44 @@ const People: FunctionComponent = () => {
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText
-                                            primary={student.name}
+                                            primary={student.firstName + " " + student.lastName}
                                             secondary={null}
                                         />
                                     </ListItem>
-                                    <IconButton>
-                                        <MoreVertIcon />
-                                    </IconButton>
+                                    {
+                                        (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                                        (<><IconButton
+                                            ref={ref}
+                                            onClick={() => {
+                                                const value = index
+                                                if (isMoreClickStudent === index) {
+                                                    handleMoreClickStudent(-1)
+                                                } else handleMoreClickStudent(value)
+
+                                            }
+                                            }
+                                        >
+                                            <MoreVertIcon />
+                                        </IconButton>
+                                            {
+                                                (isMoreClickStudent === index) &&
+                                                (
+                                                    <MoreCard>
+                                                        <ActionSortList>
+                                                            <ActionSortListItem disablePadding onClick={() => removeUser(student._id, true)}>
+                                                                <ActionSortListItemButton>
+                                                                    <ListItemText primary="Remove" />
+                                                                </ActionSortListItemButton>
+                                                            </ActionSortListItem>
+                                                        </ActionSortList>
+                                                    </MoreCard>
+                                                )
+                                            }</>)
+                                    }
+
                                 </RowLabelItem>
                             </ListItemButton>
+
                         ))}
 
                     </List>

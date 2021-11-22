@@ -136,7 +136,7 @@ export default function PrimarySearchAppBar() {
     setIsAccountButton(false)
   }
 
-  useOnClickOutside(ref, handleClickOutside)
+  // useOnClickOutside(ref, handleClickOutside)
   const handleMyProfileClick = () => {
     history.push('/profile')
     setIsAccountButton(false)

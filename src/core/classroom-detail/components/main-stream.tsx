@@ -7,7 +7,10 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ReplayIcon from '@mui/icons-material/Replay';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import { Classroom } from "../../../slices/classroom-slice";
+import { Classroom, copyInviteLink, resetClassCode } from "../../../slices/classroom-slice";
+import { copyToClipboard } from "../../../utils/function";
+import { useAppDispatch } from "../../../app/hooks";
+import { createAlert } from "../../../slices/alert-slice";
 
 const HorizontalCenterContainer = styled(Box)(({
     width: "80%",
@@ -147,13 +150,28 @@ interface MainStreamProps {
 const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
     const [inforButton, setInforButton] = useState(false)
     const [moreButton, setMoreButton] = useState(false)
-
+    const dispatch = useAppDispatch()
     const handleInforButton = () => {
         setInforButton(!inforButton)
     }
 
     const handleMoreButton = () => {
         setMoreButton(!moreButton)
+    }
+
+    const handleCopyClassCode = async () => {
+        await copyToClipboard(classroom.classCode || "")
+        dispatch(createAlert({
+            message: "Copy class code successfully!",
+            severity: "success"
+        }))
+    }
+    const handleCopyInviteLink = async () => {
+        const payload = { classId: classroom._id, isStudent: true }
+        await dispatch(copyInviteLink(payload))
+    }
+    const handleResetClassCode = () => {
+        dispatch(resetClassCode(classroom._id))
     }
 
     return (
@@ -185,18 +203,20 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                         <ClassCodeText>
                             Class Code:
                         </ClassCodeText>
-                        <MoreButton
-                            onClick={handleMoreButton}
-                        >
-                            <IconMoreCodeClass></IconMoreCodeClass>
-                        </MoreButton>
+                        {classroom.role !== 'student' &&
+                            <MoreButton
+                                onClick={handleMoreButton}
+                            >
+                                <IconMoreCodeClass></IconMoreCodeClass>
+                            </MoreButton>
+                        }
                     </RowClassCode>
-                    <CodeClassText>"ASFASF"</CodeClassText>
-                    {moreButton &&
+                    <CodeClassText>{classroom.classCode}</CodeClassText>
+                    {classroom.role !== 'student' && moreButton &&
                         (
                             <MoreCard>
                                 <MoreList>
-                                    <MoreListItem disablePadding>
+                                    <MoreListItem disablePadding onClick={handleCopyInviteLink}>
                                         <MoreListItemButton>
                                             <ListItemIcon>
                                                 <InsertLinkIcon />
@@ -204,7 +224,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                                             <ListItemText primary="Copy link invite" />
                                         </MoreListItemButton>
                                     </MoreListItem>
-                                    <MoreListItem disablePadding>
+                                    <MoreListItem disablePadding onClick={handleCopyClassCode}>
                                         <MoreListItemButton>
                                             <ListItemIcon>
                                                 <ContentCopyIcon />
@@ -212,7 +232,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                                             <ListItemText primary="Copy class code" />
                                         </MoreListItemButton>
                                     </MoreListItem>
-                                    <MoreListItem disablePadding>
+                                    <MoreListItem disablePadding onClick={handleResetClassCode}>
                                         <MoreListItemButton>
                                             <ListItemIcon>
                                                 <ReplayIcon />
@@ -220,7 +240,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                                             <ListItemText primary="Reset class code" />
                                         </MoreListItemButton>
                                     </MoreListItem>
-                                    <MoreListItem disablePadding>
+                                    <MoreListItem disablePadding onClick={() => setMoreButton(false)}>
                                         <MoreListItemButton>
                                             <ListItemIcon>
                                                 <CancelPresentationIcon />

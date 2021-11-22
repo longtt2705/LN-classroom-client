@@ -35,9 +35,9 @@ const ClassroomCard: FunctionComponent<ClassroomCardProps> = ({ classroom }) => 
                     <Typography gutterBottom variant="h5" component="div">
                         {classroom.name}
                     </Typography>
-                    <Typography variant="subtitle1" color="text.secondary">
+                    {/* <Typography variant="subtitle1" color="text.secondary">
                         Trần Thành Long
-                    </Typography>
+                    </Typography> */}
                     <Typography variant="caption" color="text.secondary">
                         {classroom.schoolYear}
                     </Typography>

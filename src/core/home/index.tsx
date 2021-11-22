@@ -4,7 +4,8 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { RouteName } from "../../app/routes";
 import { getAllClassroom } from "../../slices/classroom-slice";
-import { setModalOpen } from "../../slices/create-class-modal-sclice";
+import { setCreateClassModalOpen } from "../../slices/create-class-modal-sclice";
+import { setJoinClassModalOpen } from "../../slices/join-class-modal-slice";
 import { selectRoute } from "../../slices/route-slice";
 import ClassroomCard from "../components/classroom-card";
 import { HorizontalCenterContainer, VerticalCenterContainer } from "../components/container";
@@ -34,7 +35,11 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
     }, [])
 
     const handleCreateClass = () => {
-        dispatch(setModalOpen())
+        dispatch(setCreateClassModalOpen())
+    }
+
+    const handleJoinClass = () => {
+        dispatch(setJoinClassModalOpen())
     }
 
     const getDisplayClassroom = () => {
@@ -84,7 +89,7 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
                             <Typography align='center' variant="h4" component="div">You have not enrolled in any classes!</Typography>
                             <Box mt={2}></Box>
                             <HorizontalCenterContainer>
-                                <Button variant="contained" color="success">
+                                <Button variant="contained" color="success" onClick={handleJoinClass}>
                                     Join Class
                                 </Button>
                                 <Box mr={2} display="inline"></Box>

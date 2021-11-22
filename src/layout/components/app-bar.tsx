@@ -14,12 +14,13 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 import { useAppDispatch } from '../../app/hooks';
-import { setModalOpen } from '../../slices/create-class-modal-sclice';
+import { setCreateClassModalOpen } from '../../slices/create-class-modal-sclice';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useHistory } from 'react-router-dom'
 import { logout } from '../../services/auth';
+import { setJoinClassModalOpen } from '../../slices/join-class-modal-slice';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -117,7 +118,12 @@ export default function PrimarySearchAppBar() {
   };
 
   const handleCreateClass = () => {
-    dispatch(setModalOpen())
+    dispatch(setCreateClassModalOpen())
+    handleMenuClose();
+  }
+
+  const handleJoinClass = () => {
+    dispatch(setJoinClassModalOpen())
     handleMenuClose();
   }
 
@@ -130,7 +136,7 @@ export default function PrimarySearchAppBar() {
     setIsAccountButton(false)
   }
 
-  useOnClickOutside(ref, handleClickOutside)
+  // useOnClickOutside(ref, handleClickOutside)
   const handleMyProfileClick = () => {
     history.push('/profile')
     setIsAccountButton(false)
@@ -162,7 +168,7 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Join class</MenuItem>
+      <MenuItem onClick={handleJoinClass}>Join class</MenuItem>
       <MenuItem onClick={handleCreateClass}>Create class</MenuItem>
     </Menu>
   );

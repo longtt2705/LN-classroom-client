@@ -2,6 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import routeReducer from './route-slice'
 import classroomReducer from './classroom-slice'
 import createClassModalReducer from './create-class-modal-sclice'
+import joinClassModalReducer from './join-class-modal-slice'
 import userReducer from './user-slice'
 import alertReducer from './alert-slice'
 
@@ -10,7 +11,9 @@ const rootReducer = combineReducers({
     classroomReducer,
     createClassModalReducer,
     alertReducer,
-    userReducer
+    userReducer,
+    joinClassModalReducer
+
 })
 
 export default rootReducer;

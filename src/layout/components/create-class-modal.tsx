@@ -4,7 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { createClassroom } from '../../slices/classroom-slice';
-import { setModalClose } from '../../slices/create-class-modal-sclice';
+import { setCreateClassModalClose } from '../../slices/create-class-modal-sclice';
 import { User } from '../../slices/user-slice';
 import InputFieldValidator, { notEmptyValidation, useValidator, useValidatorManagement } from '../../utils/validator';
 
@@ -46,7 +46,7 @@ const CreateClassroomModal = () => {
     const hasError = validatorFields.hasError()
     const handleClose = () => {
         validatorFields.reset()
-        dispatch(setModalClose())
+        dispatch(setCreateClassModalClose())
     }
 
     const handleOnChange = validatorFields.handleOnChange

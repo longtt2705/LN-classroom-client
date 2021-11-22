@@ -12,15 +12,15 @@ const createClassModalSlice = createSlice({
     name: 'CreateClassModal',
     initialState,
     reducers: {
-        setModalOpen(state) {
+        setCreateClassModalOpen(state) {
             state.isOpen = true
         },
-        setModalClose(state) {
+        setCreateClassModalClose(state) {
             state.isOpen = false
         }
     }
 });
 
-export const { setModalOpen, setModalClose } = createClassModalSlice.actions;
+export const { setCreateClassModalOpen, setCreateClassModalClose } = createClassModalSlice.actions;
 
 export default createClassModalSlice.reducer;

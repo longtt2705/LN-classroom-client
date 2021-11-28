@@ -1,8 +1,10 @@
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
+import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SearchIcon from '@mui/icons-material/Search';
-import { Grid, Card, ListItemIcon, ListItemText, List, ListItem, ListItemButton, Divider } from '@mui/material';
+import { Card, Divider, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -13,13 +15,10 @@ import { alpha, styled } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
+import { useHistory } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
-import { setCreateClassModalOpen } from '../../slices/create-class-modal-sclice';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useOnClickOutside } from 'usehooks-ts';
-import { useHistory } from 'react-router-dom'
 import { logout } from '../../services/auth';
+import { setCreateClassModalOpen } from '../../slices/create-class-modal-sclice';
 import { setJoinClassModalOpen } from '../../slices/join-class-modal-slice';
 
 const Search = styled('div')(({ theme }) => ({
@@ -90,8 +89,6 @@ const Line = styled(Divider)(({ theme }) => ({
 
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
 
   const [isAccountButton, setIsAccountButton] = React.useState(false)
 
@@ -104,17 +101,8 @@ export default function PrimarySearchAppBar() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
   };
 
   const handleCreateClass = () => {
@@ -132,9 +120,6 @@ export default function PrimarySearchAppBar() {
   }
 
   const ref = React.useRef(null)
-  const handleClickOutside = () => {
-    setIsAccountButton(false)
-  }
 
   // useOnClickOutside(ref, handleClickOutside)
   const handleMyProfileClick = () => {
@@ -147,7 +132,7 @@ export default function PrimarySearchAppBar() {
       await logout()
       window.location.href = '/login'
     } catch (err) {
-      console.log(err)
+      //ignore
     }
   }
 

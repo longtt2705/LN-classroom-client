@@ -140,7 +140,7 @@ export class ValidatorManagement {
 
 
 export const useValidatorManagement = () => {
-    const [manager, _] = useState(() => new ValidatorManagement())
+    const [manager] = useState(() => new ValidatorManagement())
 
     return manager
 }

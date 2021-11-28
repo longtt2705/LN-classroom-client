@@ -30,9 +30,9 @@ const Home: FunctionComponent<HomeProps> = ({ name }) => {
     const [classroomTypes, setClassroomTypes] = useState("All")
 
     useEffect(() => {
-        dispatch(selectRoute(name))
+        dispatch(selectRoute(RouteName.HOME))
         dispatch(getAllClassroom())
-    }, [])
+    }, [dispatch])
 
     const handleCreateClass = () => {
         dispatch(setCreateClassModalOpen())

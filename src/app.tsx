@@ -22,7 +22,6 @@ const PRE_URL = 'preUrl'
 const App = () => {
     const isAuthenticated = useAppSelector((state) => state.userReducer.isAuthenticated)
     const isLoading = useAppSelector((state) => state.userReducer.isLoading)
-    const preUrl = useAppSelector((state) => state.routeReducer.preLoginUrl)
     const history = useHistory()
     const location = useLocation()
     const dispatch = useAppDispatch()
@@ -30,7 +29,7 @@ const App = () => {
 
     useEffect(() => {
         dispatch(checkAuthentication())
-    }, [])
+    }, [dispatch])
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -40,7 +39,7 @@ const App = () => {
             localStorage.removeItem(PRE_URL)
         }
 
-    }, [isAuthenticated])
+    }, [isAuthenticated, dispatch, history])
 
     return (
         <>

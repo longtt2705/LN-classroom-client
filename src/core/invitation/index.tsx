@@ -33,7 +33,7 @@ const Invitation: FunctionComponent = () => {
             }
         }
         checkToken()
-    }, [])
+    }, [token, dispatch])
 
     return (
         <>

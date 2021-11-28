@@ -10,7 +10,7 @@ import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { VerticalCenterContainer } from '../components/container';
-import OAuthButton from '../components/oauth-button';
+import OAuthButton, { Provider } from '../components/oauth-button';
 import SignUpImage from '../../public/images/signup-classroom.jpg';
 import { emailValidation, notEmptyValidation, passwordValidation, usernameValidation, useValidator, useValidatorManagement } from '../../utils/validator';
 import { useAppDispatch } from '../../app/hooks';
@@ -154,8 +154,8 @@ export default function SignIn() {
                                     {"Already had an account? Sign In now!"}
                                 </Link>
                             </Typography>
-                            <OAuthButton name="google" />
-                            <OAuthButton name="facebook" />
+                            <OAuthButton name={Provider.GOOGLE} />
+                            <OAuthButton name={Provider.FACEBOOK} />
                         </Box>
                     </StyledCard>
                 </VerticalCenterContainer>

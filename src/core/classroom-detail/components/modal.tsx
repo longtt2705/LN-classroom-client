@@ -92,7 +92,7 @@ const InviteModal: FunctionComponent<ModalProps> = ({ classroom, isOpen, onClose
             setInviteLink(link)
         }
         getLink()
-    }, [])
+    }, [classroom._id, isStudent])
 
     const handleOnCopy = async () => {
         await copyToClipboard(inviteLink)

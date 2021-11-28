@@ -39,7 +39,6 @@ export const getAllClassroom = createAsyncThunk(
             const response = await classroomApi.getAllClassroom()
             return response.data
         } catch (err) {
-            console.error(err)
             return thunkApi.rejectWithValue(err)
         }
     }

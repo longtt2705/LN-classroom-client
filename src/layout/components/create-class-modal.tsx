@@ -1,12 +1,10 @@
 import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { useHistory } from 'react-router';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { createClassroom } from '../../slices/classroom-slice';
 import { setCreateClassModalClose } from '../../slices/create-class-modal-sclice';
-import { User } from '../../slices/user-slice';
-import InputFieldValidator, { notEmptyValidation, useValidator, useValidatorManagement } from '../../utils/validator';
+import { notEmptyValidation, useValidator, useValidatorManagement } from '../../utils/validator';
 
 
 const StyledBox = styled(Box)(({ theme }) => ({

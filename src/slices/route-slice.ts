@@ -1,6 +1,6 @@
 import { CaseReducer, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { WritableDraft } from "immer/dist/internal";
-import RouteList, { RouteName } from "../app/routes"
+import RouteList from "../app/routes";
 interface RouteState {
     currentSelected: number | string,
     preLoginUrl: string

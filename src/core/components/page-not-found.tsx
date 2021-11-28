@@ -1,5 +1,4 @@
 import { Button, Paper, Typography } from '@mui/material'
-import { Home } from '@mui/icons-material'
 import React from 'react'
 
 const PageNotFound = () => {

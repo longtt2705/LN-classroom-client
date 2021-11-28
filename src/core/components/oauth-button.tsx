@@ -2,40 +2,42 @@ import { Button, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { startCase } from 'lodash';
 import { FunctionComponent } from "react";
-import { useAppDispatch } from "../../app/hooks";
 import FACEBOOK_LOGO from '../../public/icons/facebook.png';
 import GOOGLE_LOGO from '../../public/icons/google.png';
 import { LOGO_WIDTH } from "../../shared/styles";
 
+export enum Provider {
+    GOOGLE = "google",
+    FACEBOOK = "facebook"
+}
 interface OauthButtonProps {
-    name: "google" | "facebook",
+    name: Provider
 }
 
 const Logo = styled('img')`
     width: ${LOGO_WIDTH}px;
     height: ${LOGO_WIDTH}px;
-    margin-right: ${({ theme }) => theme.spacing(2)}
+    margin-right: 8px;
 `
 
 const OAuthButton: FunctionComponent<OauthButtonProps> = ({ name }) => {
-
-    const dispatch = useAppDispatch()
     const getIcon = () => {
         switch (name) {
-            case "google":
+            case Provider.GOOGLE:
                 return GOOGLE_LOGO
-            case "facebook":
+            case Provider.FACEBOOK:
                 return FACEBOOK_LOGO
         }
     }
 
     const handleClick = () => {
         switch (name) {
-            case "google":
+            case Provider.GOOGLE: {
                 const url = process.env.REACT_APP_GOOGLE_AUTH_URL || ""
                 window.open(url, "_self");
                 break;
-            case "facebook":
+            }
+            case Provider.FACEBOOK:
                 break
         }
     }

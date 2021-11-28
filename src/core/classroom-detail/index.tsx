@@ -11,18 +11,13 @@ import TabPanel from '@mui/lab/TabPanel';
 import MainStream from "./components/main-stream";
 import People from "./components/people";
 import { HorizontalCenterContainer } from "../components/container";
-interface ClassroomProps {
 
-}
-
-
-
-const ClassroomDetail: FunctionComponent<ClassroomProps> = () => {
+const ClassroomDetail: FunctionComponent = () => {
     const { id } = useParams<{ id: string }>()
     const dispatch = useAppDispatch()
     const classroom = useAppSelector(({ classroomReducer }) =>
-        [...classroomReducer.enrolledClassrooms, ...classroomReducer.teachingClassrooms].
-            find((classroom) => classroom._id === id))
+        [...classroomReducer.enrolledClassrooms, ...classroomReducer.teachingClassrooms]
+            .find((classroom) => classroom._id === id))
     const lastId = useRef('')
     const [value, setValue] = useState('1');
 
@@ -37,7 +32,7 @@ const ClassroomDetail: FunctionComponent<ClassroomProps> = () => {
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue);
     };
-    console.log("ASFAS")
+
     return (
         classroom ? (<><TabContext value={value}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

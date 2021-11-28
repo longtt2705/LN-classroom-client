@@ -142,7 +142,7 @@ const UserProfile: FunctionComponent = () => {
 
     useEffect(() => {
         dispatch(selectRoute(RouteName.PROFILE))
-    }, [])
+    }, [dispatch])
 
     const canChangePassword = !passwordValidatorManagement.hasError() && isRetypePasswordSame()
 

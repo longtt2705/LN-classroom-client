@@ -6,7 +6,6 @@ import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import { Avatar, Box, Button, Card, Checkbox, Divider, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
-import { useOnClickOutside } from 'usehooks-ts';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { removeFromClassroom } from '../../../services/classroom';
 import { getUserDataById } from '../../../services/user';
@@ -138,7 +137,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
     const handleCheckAllStudent = () => {
         if (!isCheckAllStudent) {
             setIsCheckAllStudent(true)
-            let listStudent = []
+            const listStudent = []
             for (let i = 0; i < students.length; i++) {
                 listStudent.push(i)
             }
@@ -171,10 +170,6 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
     const [students, setStudents] = useState<User[]>([]);
     const user = useAppSelector((state => state.userReducer.user))
 
-    const promisifyGetUserData = (listId: string[], cb: any) => {
-        return listId.map((id) => getUser(id, cb))
-    }
-
     const getUser = async (id: string, cb: any) => {
         try {
             const data = (await getUserDataById(id)).data
@@ -184,16 +179,6 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
         }
     }
 
-    const getUsersData = async () => {
-        setStudents([])
-        setTeachers([])
-        if (classroom.studentsId) {
-            await Promise.all(promisifyGetUserData(classroom.studentsId, (data: User) => setStudents((students) => [...students, data])))
-        }
-        if (classroom.teachersId) {
-            await Promise.all(promisifyGetUserData(classroom.teachersId, (data: User) => setTeachers(teachers => [...teachers, data])))
-        }
-    }
     const dispatch = useAppDispatch()
 
     const removeUser = async (userId: string | undefined, isStudent: boolean) => {
@@ -203,11 +188,24 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
             dispatch(getAllClassroom())
         } catch (err) {
             // ignore
-            console.log(err)
+            // console.log(err)
         }
     }
 
     useEffect(() => {
+        const getUsersData = async () => {
+            const promisifyGetUserData = (listId: string[], cb: any) => {
+                return listId.map((id) => getUser(id, cb))
+            }
+            setStudents([])
+            setTeachers([])
+            if (classroom.studentsId) {
+                await Promise.all(promisifyGetUserData(classroom.studentsId, (data: User) => setStudents((students) => [...students, data])))
+            }
+            if (classroom.teachersId) {
+                await Promise.all(promisifyGetUserData(classroom.teachersId, (data: User) => setTeachers(teachers => [...teachers, data])))
+            }
+        }
         getUsersData()
     }, [classroom])
 
@@ -230,12 +228,12 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
 
 
     const ref = useRef(null)
-    const handleClickOutside = () => {
-        setIsActionClick(false)
-        setIsSortClick(false)
-        setIsMoreClickStudent(-1)
-        setIsMoreClickTeacher(-1)
-    }
+    // const handleClickOutside = () => {
+    //     setIsActionClick(false)
+    //     setIsSortClick(false)
+    //     setIsMoreClickStudent(-1)
+    //     setIsMoreClickTeacher(-1)
+    // }
 
     // useOnClickOutside(ref, handleClickOutside)
     return (

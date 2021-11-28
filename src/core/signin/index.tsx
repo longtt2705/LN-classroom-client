@@ -1,26 +1,24 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import { Link } from 'react-router-dom';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import OAuthButton from '../components/oauth-button';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
-import { VerticalCenterContainer } from '../components/container';
-import SignInImage from '../../public/images/signin-classroom.jpg';
-import { loginUser } from '../../slices/user-slice';
+import Checkbox from '@mui/material/Checkbox';
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
+import SignInImage from '../../public/images/signin-classroom.jpg';
 import { LOGIN_FAILED } from '../../shared/messages';
-import { useHistory } from "react-router-dom";
+import { loginUser } from '../../slices/user-slice';
+import { VerticalCenterContainer } from '../components/container';
+import OAuthButton, { Provider } from '../components/oauth-button';
 
 
 const theme = createTheme();
@@ -44,8 +42,7 @@ const BackgroundImage = styled('img')(({
 export default function SignIn() {
     const dispatch = useAppDispatch();
     const [errors, setErrors] = React.useState("")
-    const history = useHistory()
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         const rememberMe = data.get('rememberMe')
@@ -124,8 +121,8 @@ export default function SignIn() {
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Typography>
-                            <OAuthButton name="google" />
-                            <OAuthButton name="facebook" />
+                            <OAuthButton name={Provider.GOOGLE} />
+                            <OAuthButton name={Provider.FACEBOOK} />
                         </Box>
                     </StyledCard>
                 </VerticalCenterContainer>

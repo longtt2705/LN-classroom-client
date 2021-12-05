@@ -8,7 +8,7 @@ export interface UpdateProfileParams {
 }
 
 export const updateProfile = (payload: UpdateProfileParams) => {
-    return api.post(BASE_URL + "update", payload)
+    return api.patch(BASE_URL, payload)
 }
 
 export const changePassword = (payload: { oldPassword: string, newPassword: string }) => {

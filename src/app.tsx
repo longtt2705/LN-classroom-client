@@ -66,7 +66,7 @@ const App = () => {
                                 )}
                             />
                         ))}
-                        <Route exact path={"/classrooms/:id"} component={ClassroomDetail} />
+                        <Route path={"/classrooms/:id"} component={ClassroomDetail} />
                         <Route exact path={"/invite/:token"} component={Invitation} />
                         <Route exact path={"/profile"} component={UserProfile} />
                         <Route path={"/"} component={PageNotFound} />

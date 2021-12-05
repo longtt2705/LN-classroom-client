@@ -1,16 +1,18 @@
-import { FunctionComponent, useState } from "react";
-import { styled } from '@mui/material/styles';
-import { Box, CardMedia, Card, Typography, IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ReplayIcon from '@mui/icons-material/Replay';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import { Classroom, copyInviteLink, resetClassCode } from "../../../slices/classroom-slice";
-import { copyToClipboard } from "../../../utils/function";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ReplayIcon from '@mui/icons-material/Replay';
+import { Box, Card, CardMedia, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { FunctionComponent, useState } from "react";
+import { useHistory } from "react-router";
 import { useAppDispatch } from "../../../app/hooks";
 import { createAlert } from "../../../slices/alert-slice";
+import { Classroom, copyInviteLink, resetClassCode } from "../../../slices/classroom-slice";
+import { copyToClipboard } from "../../../utils/function";
+import { DataItem } from '../../grade-structure';
 
 const HorizontalCenterContainer = styled(Box)(({
     width: "80%",
@@ -142,15 +144,47 @@ const MoreListItemButton = styled(ListItemButton)(({ theme }) => ({
     height: theme.spacing(8)
 }))
 
-interface MainStreamProps {
-    classroom: Classroom
+const HomeWork = styled(Box)(({ theme }) => ({
+    width: theme.spacing(60),
+    marginTop: theme.spacing(8),
+    display: "flex",
+    flexDirection: "column",
+    borderRadius: theme.spacing(2.75)
+})) 
 
+const TitleHomeWork = styled(Typography)(({ theme }) => ({
+    fontSize: theme.fontSizes.default,
+    fontWeight: "bold",
+    color:theme.colors.texting.sideBarLabel,
+    marginLeft: theme.spacing(4),
+}))
+
+const TitleBox = styled(Box)(({ theme }) => ({
+    height: "100%",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center"
+}))
+
+const Title = styled(Typography)(({ theme }) => ({
+    fontSize: theme.fontSizes.changePass,
+    fontWeight: 550,
+    color: theme.colors.texting.classcode,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(4),
+}))
+
+interface MainStreamProps {
+    classroom: Classroom,
+    gradeStructure: DataItem[]
 }
 
-const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
+const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStructure }) => {
     const [inforButton, setInforButton] = useState(false)
     const [moreButton, setMoreButton] = useState(false)
     const dispatch = useAppDispatch()
+
     const handleInforButton = () => {
         setInforButton(!inforButton)
     }
@@ -254,6 +288,27 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                     }
 
                 </ClassCode>
+                <HomeWork
+                    sx={{ boxShadow: 6 }}
+                >
+                    <Title>
+                        Grade Structure
+                    </Title>
+                    {gradeStructure.length > 0 ? gradeStructure.map((value) => {
+                        return (
+                            <TitleBox>
+                                <TitleHomeWork>{value.title}</TitleHomeWork>
+                            </TitleBox>)
+                    }) : (
+                        <TitleBox>
+                            <TitleHomeWork>
+                                There are no grades structure yet
+                            </TitleHomeWork>
+                        </TitleBox>
+                    )
+
+                    }
+                </HomeWork>
             </Banner>
         </HorizontalCenterContainer>
     )

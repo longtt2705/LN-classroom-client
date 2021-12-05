@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getLocation } from '../utils/function';
 
-const BASE_URL = `${process.env.REACT_APP_SERVER_URL}:${process.env.REACT_APP_SERVER_PORT}/api/`
+const BASE_URL = `${process.env.REACT_APP_SERVER_URL}/api/`
 
 const instance = axios.create({
     baseURL: BASE_URL,

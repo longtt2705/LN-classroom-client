@@ -3,6 +3,7 @@ export interface Colors {
         primary: string,
         pageBackground: string,
         white: string,
+        structBackGround:string,
     },
     texting: {
         sideBarLabel: string,
@@ -16,7 +17,8 @@ const colors = {
     background: {
         primary: '#282828',
         pageBackground: "#f0f2f5",
-        white: "#fff"
+        white: "#fff",
+        structBackGround:"#aeb1b6",
     },
     texting: {
         sideBarLabel: '#5f6368',

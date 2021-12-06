@@ -4,7 +4,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ReplayIcon from '@mui/icons-material/Replay';
-import { Box, Card, CardMedia, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Box, Card, CardMedia, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useState } from "react";
 import { useAppDispatch } from "../../../app/hooks";
@@ -143,7 +143,7 @@ const MoreListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 const HomeWork = styled(Box)(({ theme }) => ({
-    width: theme.spacing(60),
+    width: theme.spacing(45),
     marginTop: theme.spacing(8),
     display: "flex",
     flexDirection: "column",
@@ -151,10 +151,22 @@ const HomeWork = styled(Box)(({ theme }) => ({
 }))
 
 const TitleHomeWork = styled(Typography)(({ theme }) => ({
+    width: "70%",
     fontSize: theme.fontSizes.default,
     fontWeight: "bold",
-    color: theme.colors.texting.sideBarLabel,
+    color: theme.colors.texting.gradeStruct,
     marginLeft: theme.spacing(4),
+    paddingBottom: theme.spacing(2),
+}))
+
+const PointHomeWork = styled(Typography)(({ theme }) => ({
+    width: "30%",
+    fontSize: theme.fontSizes.default,
+    fontWeight: "bold",
+    color: theme.colors.texting.gradeStruct,
+    textAlign: "center",
+    marginRight: theme.spacing(2.5),
+    paddingBottom: theme.spacing(2)
 }))
 
 const TitleBox = styled(Box)(({ theme }) => ({
@@ -172,6 +184,13 @@ const Title = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(1),
     marginLeft: theme.spacing(4),
 }))
+
+const RowTitleGradeStructure = styled(Box)(({ theme }) => ({
+    width: "100%",
+    display: "flex",
+    flexDirection: "row"
+}))
+
 
 interface MainStreamProps {
     classroom: Classroom,
@@ -231,7 +250,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                         </ClassInforCom>
                     )
                 }
-                <ClassCode>
+                <ClassCode sx={{ boxShadow: 6 }}>
                     <RowClassCode>
                         <ClassCodeText>
                             Class Code:
@@ -293,13 +312,16 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                     <Title>
                         Grade Structure
                     </Title>
-                    {gradeStructure ? gradeStructure.gradeStructuresDetails && gradeStructure.gradeStructuresDetails.map((value) => {
-                        return (
-                            <TitleBox>
-                                <TitleHomeWork>{value.title}</TitleHomeWork>
-                                <TitleHomeWork>{value.point}</TitleHomeWork>
-                            </TitleBox>)
-                    }) : (
+                    {gradeStructure ? gradeStructure.gradeStructuresDetails && (
+                                gradeStructure.gradeStructuresDetails.map((value) => {
+                                    return (
+                                        <RowTitleGradeStructure>
+                                            <TitleHomeWork>{value.title}</TitleHomeWork>
+                                            <PointHomeWork>{value.point}</PointHomeWork>
+                                        </RowTitleGradeStructure>
+                                    )
+                                })
+                        ) : (
                         <TitleBox>
                             <TitleHomeWork>
                                 There are no grades structure yet

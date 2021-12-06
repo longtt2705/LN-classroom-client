@@ -10,6 +10,7 @@ export interface Colors {
         textLabel: string,
         button:string,
         classcode:string,
+        gradeStruct:string,
     }
 }
 
@@ -24,7 +25,8 @@ const colors = {
         sideBarLabel: '#5f6368',
         textLabel: '#0a69a3',
         button:"#0E6E2E",
-        classcode:"#5F7076"
+        classcode:"#5F7076",
+        gradeStruct:"#0b798d",
     }
 }
 

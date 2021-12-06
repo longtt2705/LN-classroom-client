@@ -52,7 +52,7 @@ const CreateClassroomModal = () => {
     const handleSubmit = () => {
         validatorFields.validate()
         if (!validatorFields.hasError()) {
-            const payload = { ...validatorFields.getValuesObject(), ownerId: user?._id }
+            const payload = { ...validatorFields.getValuesObject(), owner: user?._id }
             dispatch(createClassroom(payload))
             handleClose()
         }

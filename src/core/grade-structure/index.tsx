@@ -1,14 +1,15 @@
 import { Box, Card, Divider, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from "react";
 import {
     DragDropContext, Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProvided, DropResult,
     ResponderProvided
 } from "react-beautiful-dnd";
 import { useAppDispatch } from "../../app/hooks";
-import { addGradeStructure, removeGradeStructure, updateGradeStructure } from '../../services/classroom';
+import { addGradeStructure, removeGradeStructure, addNewGradeStructureDetail, updateGradeStructure } from '../../services/classroom';
 import { ERROR_MESSAGE } from "../../shared/messages";
 import { createAlert } from "../../slices/alert-slice";
+import { getClassroom, GradeStructure, GradeStructureDetail } from "../../slices/classroom-slice";
 import AddCardCreator from "./components/add-card-creator";
 import CardCreator from './components/card-creator';
 
@@ -26,13 +27,6 @@ apply pre-drag width/height via styles.
 Pre-drag dimensions can be obtained via the new-ish ResizeObserver API. If you are using class 
 components, the getSnapshotBeforeUpdate() lifecycle method can work with getBoundingClientRect(), 
 */
-
-export interface DataItem {
-    _id: string;
-    title: string;
-    point: number;
-    description?: string
-}
 
 const HorizontalCenterContainer = styled(Box)(({ theme }) => ({
     display: "flex",
@@ -89,23 +83,53 @@ const LineGradeInfor = styled(Divider)(({ theme }) => ({
 }))
 
 interface GradeStructureProps {
-    gradeStructure: DataItem[],
+    gradeStructure?: GradeStructure,
     classId: string
 }
 
-export const GradeStructure: FunctionComponent<GradeStructureProps> = ({ gradeStructure, classId }) => {
+export const GradeStructurePage: FunctionComponent<GradeStructureProps> = ({ gradeStructure, classId }) => {
     // cache the items provided via props in state for purposes of this demo
-    const [localItems, setLocalItems] = useState<Array<DataItem>>(gradeStructure);
+    const [localItems, setLocalItems] = useState<Array<GradeStructureDetail>>(gradeStructure?.gradeStructuresDetails || []);
     const dispatch = useAppDispatch()
+    const prevItems = useRef(localItems)
+
+    const checkIfListIsChange = useCallback(
+        () => {
+            if (prevItems.current.length !== localItems.length)
+                return true;
+            for (let i = 0; i < localItems.length; ++i) {
+                if (prevItems.current[i]._id !== localItems[i]._id)
+                    return true;
+            }
+            return false;
+        },
+        [localItems],
+    );
 
     useEffect(() => {
-        setLocalItems(gradeStructure);
+        setLocalItems(gradeStructure?.gradeStructuresDetails || []);
     }, [gradeStructure])
+
+    useEffect(() => {
+        const updateItems = async () => {
+            await updateGradeStructure(classId, {
+                ...gradeStructure,
+                gradeStructuresDetails: localItems
+            })
+            prevItems.current = localItems
+            dispatch(getClassroom(classId))
+        }
+
+        if (checkIfListIsChange()) {
+            updateItems()
+        }
+    }, [localItems, checkIfListIsChange, classId, gradeStructure, dispatch])
+
 
     const handleAdd = async (title: string, description: string, point: number) => {
         try {
             await addGradeStructure(classId, title, description, point)
-
+            dispatch(getClassroom(classId))
         } catch (err) {
             dispatch(createAlert({
                 message: ERROR_MESSAGE,
@@ -114,9 +138,9 @@ export const GradeStructure: FunctionComponent<GradeStructureProps> = ({ gradeSt
         }
     }
 
-    const handleEditGrade = async (classId:string,gradeStructureId: string, title: string, description: string, point: number) => {
+    const handleEditGrade = async (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
         try {
-            const response = await updateGradeStructure(classId,gradeStructureId, title, description, point)
+            await addNewGradeStructureDetail(classId, gradeStructureId, title, description, point)
 
         } catch (err) {
             dispatch(createAlert({
@@ -128,8 +152,8 @@ export const GradeStructure: FunctionComponent<GradeStructureProps> = ({ gradeSt
 
     const handleDelete = async (classId: string, gradeStructureId: string) => {
         try {
-            const response = await removeGradeStructure(classId, gradeStructureId)
-
+            await removeGradeStructure(classId, gradeStructureId)
+            dispatch(getClassroom(classId))
         } catch (err) {
             dispatch(createAlert({
                 message: ERROR_MESSAGE,
@@ -156,6 +180,7 @@ export const GradeStructure: FunctionComponent<GradeStructureProps> = ({ gradeSt
 
             return temp;
         });
+
     };
 
     return (
@@ -177,10 +202,10 @@ export const GradeStructure: FunctionComponent<GradeStructureProps> = ({ gradeSt
                                 ref={droppableProvided.innerRef}
                                 {...droppableProvided.droppableProps}
                             >
-                                {localItems.map((item: DataItem, index: number) => (
+                                {localItems.map((item: GradeStructureDetail, index: number) => (
                                     <Draggable
                                         key={item._id}
-                                        draggableId={item._id}
+                                        draggableId={item._id!}
                                         index={index}
                                     >
                                         {(

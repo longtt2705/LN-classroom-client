@@ -1,4 +1,4 @@
-import { Classroom } from '../slices/classroom-slice'
+import { Classroom, GradeStructure } from '../slices/classroom-slice'
 import api from './api'
 import pick from 'lodash/pick'
 
@@ -50,9 +50,21 @@ export const addGradeStructure = (classId: string, title: string, description: s
 }
 
 export const removeGradeStructure = (classId: string, gradeStructureId: string) => {
-    return api.delete(`${BASE_URL}${classId}/grade-structure`, { data: { gradeStructureId } })
+    return api.delete(`${BASE_URL}${classId}/grade-structure/${gradeStructureId}`)
 }
 
-export const updateGradeStructure = (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
-    return api.put(`${BASE_URL}${classId}/grade-structure`, { gradeStructureId, title, description, point })
+export const addNewGradeStructureDetail = (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
+    return api.put(`${BASE_URL}${classId}/grade-structure/${gradeStructureId}`, { title, description, point })
+}
+
+export const updateGradeStructure = (classId: string, gradeStructure: GradeStructure) => {
+    return api.put(`${BASE_URL}${classId}/grade-structure`, gradeStructure)
+}
+
+export const getClassroom = (classId: string) => {
+    return api.get(`${BASE_URL}${classId}`)
+}
+
+export const fetchClassroomRole = (classId: string) => {
+    return api.get(`${BASE_URL}${classId}/role`)
 }

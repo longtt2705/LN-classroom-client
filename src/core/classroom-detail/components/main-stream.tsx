@@ -7,12 +7,10 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import { Box, Card, CardMedia, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useState } from "react";
-import { useHistory } from "react-router";
 import { useAppDispatch } from "../../../app/hooks";
 import { createAlert } from "../../../slices/alert-slice";
-import { Classroom, copyInviteLink, resetClassCode } from "../../../slices/classroom-slice";
+import { Classroom, copyInviteLink, GradeStructure, resetClassCode, Role } from "../../../slices/classroom-slice";
 import { copyToClipboard } from "../../../utils/function";
-import { DataItem } from '../../grade-structure';
 
 const HorizontalCenterContainer = styled(Box)(({
     width: "80%",
@@ -150,12 +148,12 @@ const HomeWork = styled(Box)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     borderRadius: theme.spacing(2.75)
-})) 
+}))
 
 const TitleHomeWork = styled(Typography)(({ theme }) => ({
     fontSize: theme.fontSizes.default,
     fontWeight: "bold",
-    color:theme.colors.texting.sideBarLabel,
+    color: theme.colors.texting.sideBarLabel,
     marginLeft: theme.spacing(4),
 }))
 
@@ -177,10 +175,11 @@ const Title = styled(Typography)(({ theme }) => ({
 
 interface MainStreamProps {
     classroom: Classroom,
-    gradeStructure: DataItem[]
+    gradeStructure?: GradeStructure,
+    role: Role
 }
 
-const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStructure }) => {
+const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStructure, role }) => {
     const [inforButton, setInforButton] = useState(false)
     const [moreButton, setMoreButton] = useState(false)
     const dispatch = useAppDispatch()
@@ -237,7 +236,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                         <ClassCodeText>
                             Class Code:
                         </ClassCodeText>
-                        {classroom.role !== 'student' &&
+                        {role !== 'student' &&
                             <MoreButton
                                 onClick={handleMoreButton}
                             >
@@ -246,7 +245,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                         }
                     </RowClassCode>
                     <CodeClassText>{classroom.classCode}</CodeClassText>
-                    {classroom.role !== 'student' && moreButton &&
+                    {role !== 'student' && moreButton &&
                         (
                             <MoreCard>
                                 <MoreList>
@@ -294,10 +293,11 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                     <Title>
                         Grade Structure
                     </Title>
-                    {gradeStructure.length > 0 ? gradeStructure.map((value) => {
+                    {gradeStructure ? gradeStructure.gradeStructuresDetails && gradeStructure.gradeStructuresDetails.map((value) => {
                         return (
                             <TitleBox>
                                 <TitleHomeWork>{value.title}</TitleHomeWork>
+                                <TitleHomeWork>{value.point}</TitleHomeWork>
                             </TitleBox>)
                     }) : (
                         <TitleBox>

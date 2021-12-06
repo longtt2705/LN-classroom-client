@@ -5,15 +5,15 @@ import { Box, Button, TextField } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useState } from "react";
 import { DraggableProvided } from "react-beautiful-dnd";
-import { DataItem } from '..';
-import { notEmptyValidation, useValidator, useValidatorManagement } from '../../../utils/validator';
+import { GradeStructureDetail } from '../../../slices/classroom-slice';
+import { notEmptyValidation, onlyNumberValidation, useValidator, useValidatorManagement } from '../../../utils/validator';
 
 interface CardCreatorProps {
     draggableProvided: DraggableProvided,
-    item: DataItem,
-    classId:string,
-    handleDelete:(classId:string,gradeStructureId:string)=>void,
-    handleEditGrade:(classId:string,gradeStructureId:string,title:string,description:string,point:number)=>void
+    item: GradeStructureDetail,
+    classId: string,
+    handleDelete: (classId: string, gradeStructureId: string) => void,
+    handleEditGrade: (classId: string, gradeStructureId: string, title: string, description: string, point: number) => void
 }
 
 const CardCreatorComponent = styled(Box)(({ theme }) => ({
@@ -52,50 +52,50 @@ const BoxButton = styled(Box)(({
     flexDirection: "column",
 }))
 
-const EditButton = styled(Button)(({theme})=>({
+const EditButton = styled(Button)(({ theme }) => ({
     width: "100%",
     height: "50%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius:theme.spacing(2.75)
+    borderRadius: theme.spacing(2.75)
 }))
 
-const SaveButton = styled(Button)(({theme})=>({
+const SaveButton = styled(Button)(({ theme }) => ({
     width: "100%",
     height: "50%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius:theme.spacing(2.75)
+    borderRadius: theme.spacing(2.75)
 }))
 
-const RemoveButton = styled(Button)(({theme})=>({
+const RemoveButton = styled(Button)(({ theme }) => ({
     width: "100%",
     height: "50%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius:theme.spacing(2.75)
+    borderRadius: theme.spacing(2.75)
 }))
 
-const CardCreator: FunctionComponent<CardCreatorProps> = ({ draggableProvided,item,classId,handleDelete,handleEditGrade}) => {
+const CardCreator: FunctionComponent<CardCreatorProps> = ({ draggableProvided, item, classId, handleDelete, handleEditGrade }) => {
     const [isEdit, setIsEdit] = useState(false);
 
-    const validatorFields=useValidatorManagement()
-    
-    const title = useValidator("title", notEmptyValidation,item.title,validatorFields )
-    const description = useValidator("description",null,item.description,validatorFields)
-    const point = useValidator("point", notEmptyValidation,item.point.toString(),validatorFields)
+    const validatorFields = useValidatorManagement()
 
-    const handleOnChange=validatorFields.handleOnChange
+    const title = useValidator("title", notEmptyValidation, item.title, validatorFields)
+    const description = useValidator("description", null, item.description, validatorFields)
+    const point = useValidator("point", onlyNumberValidation, item.point.toString(), validatorFields)
+
+    const handleOnChange = validatorFields.handleOnChange
 
     const handleSave = () => {
         setIsEdit(false)
         validatorFields.validate()
         if (!validatorFields.hasError()) {
             const payload = validatorFields.getValuesObject()
-            handleEditGrade(classId,item._id,payload.title,payload.description,parseInt(payload.point))
+            handleEditGrade(classId, item._id!, payload.title, payload.description, parseInt(payload.point))
         }
     }
 
@@ -120,7 +120,7 @@ const CardCreator: FunctionComponent<CardCreatorProps> = ({ draggableProvided,it
                     variant={(item.title.length !== 0) ? "filled" : "outlined"}
                     helperText={title.error}
                     onChange={handleOnChange(title)}
-                    onBlur={()=>title.validate()}
+                    onBlur={() => title.validate()}
                 />
                 <InputGrade
                     disabled={!isEdit}
@@ -138,7 +138,7 @@ const CardCreator: FunctionComponent<CardCreatorProps> = ({ draggableProvided,it
                     variant={(item.title.length !== 0) ? "filled" : "outlined"}
                     helperText={point.error}
                     onChange={handleOnChange(point)}
-                    onBlur={()=>point.validate()}
+                    onBlur={() => point.validate()}
                 />
             </BoxInput>
             <BoxButton>
@@ -168,7 +168,7 @@ const CardCreator: FunctionComponent<CardCreatorProps> = ({ draggableProvided,it
                         <RemoveButton
                             variant="contained"
                             color="error"
-                            onClick={()=>handleDelete(classId,item._id)}
+                            onClick={() => handleDelete(classId, item._id!)}
                         >
                             <DeleteIcon />
                         </RemoveButton>

@@ -2,7 +2,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Box, Button, TextField } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { FunctionComponent } from "react";
-import { notEmptyValidation, useValidator, useValidatorManagement } from "../../../utils/validator";
+import { notEmptyValidation, onlyNumberValidation, useValidator, useValidatorManagement } from "../../../utils/validator";
 
 const CardCreatorComponent = styled(Box)(({ theme }) => ({
     width: "60%",
@@ -53,23 +53,23 @@ interface AddCardCreatorProps {
     handleAdd: (title: string, description: string, point: number) => void
 }
 
-const AddCardCreator: FunctionComponent<AddCardCreatorProps> = ({handleAdd}) => {
+const AddCardCreator: FunctionComponent<AddCardCreatorProps> = ({ handleAdd }) => {
 
-    const validatorFields=useValidatorManagement()
-    
-    const title = useValidator("title", notEmptyValidation,"",validatorFields )
-    const description = useValidator("description",null,"",validatorFields)
-    const point = useValidator("point", notEmptyValidation,"",validatorFields)
+    const validatorFields = useValidatorManagement()
 
-    const handleOnChange=validatorFields.handleOnChange
+    const title = useValidator("title", notEmptyValidation, "", validatorFields)
+    const description = useValidator("description", null, "", validatorFields)
+    const point = useValidator("point", onlyNumberValidation, "", validatorFields)
 
-    const handleAddCard=()=>{
+    const handleOnChange = validatorFields.handleOnChange
+
+    const handleAddCard = () => {
         validatorFields.validate()
         if (!validatorFields.hasError()) {
             const payload = validatorFields.getValuesObject()
-            handleAdd(payload.title,payload.description,parseInt(payload.point))
+            handleAdd(payload.title, payload.description, parseInt(payload.point))
         }
-        
+
     }
 
     return (
@@ -85,7 +85,7 @@ const AddCardCreator: FunctionComponent<AddCardCreatorProps> = ({handleAdd}) => 
                     error={title.hasError()}
                     helperText={title.error}
                     onChange={handleOnChange(title)}
-                    onBlur={()=>title.validate()}
+                    onBlur={() => title.validate()}
                 />
                 <InputGrade
                     id="gradeDes"
@@ -100,7 +100,7 @@ const AddCardCreator: FunctionComponent<AddCardCreatorProps> = ({handleAdd}) => 
                     error={point.hasError()}
                     helperText={point.error}
                     onChange={handleOnChange(point)}
-                    onBlur={()=>point.validate()}
+                    onBlur={() => point.validate()}
 
                 />
             </BoxInput>

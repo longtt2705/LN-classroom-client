@@ -4,18 +4,35 @@ import * as classroomApi from '../services/classroom';
 import { ERROR_MESSAGE, NO_MESSAGE } from "../shared/messages";
 import { copyToClipboard } from "../utils/function";
 import { createAlert } from "./alert-slice";
+import { User } from "./user-slice";
 
+export interface GradeStructureDetail {
+    _id?: string,
+    title: string,
+    description?: string,
+    point: number,
+}
+export interface GradeStructure {
+    _id?: string,
+    gradeStructuresDetails?: GradeStructureDetail[]
+}
+
+export enum Role {
+    OWNER = 'owner',
+    STUDENT = 'student',
+    TEACHER = 'teacher',
+}
 export interface Classroom {
     _id?: string,
     name: string,
-    ownerId: string,
+    owner: User,
     schoolYear: string,
-    teachersId?: string[],
-    studentsId?: string[],
+    teachers?: User[],
+    students?: User[],
     classCode?: string,
-    role?: 'student' | 'teacher' | 'owner',
+    gradeStructure?: GradeStructure
     description?: string,
-    createdAt?: Date
+    createdAt?: Date,
 };
 
 interface ClassroomState {
@@ -31,6 +48,16 @@ const initialState: ClassroomState = {
     searchResult: [],
     isLoading: false
 };
+
+
+const updateClassroomById = (classId: string, state: ClassroomState, newClassroom: Classroom) => {
+    const enrollIndex = state.enrolledClassrooms.findIndex(classroom => classroom._id === classId)
+    if (enrollIndex >= 0)
+        state.enrolledClassrooms[enrollIndex] = newClassroom
+    const teachingIndex = state.teachingClassrooms.findIndex(classroom => classroom._id === classId)
+    if (teachingIndex >= 0)
+        state.teachingClassrooms[teachingIndex] = newClassroom
+}
 
 export const getAllClassroom = createAsyncThunk(
     'classrooms/getAllClassroom',
@@ -51,13 +78,14 @@ export const createClassroom = createAsyncThunk(
             const response = await classroomApi.createClassroom({
                 name: info.name,
                 schoolYear: info.schoolYear,
-                ownerId: info.ownerId,
+                owner: info.owner,
                 description: info.description,
             })
             thunkApi.dispatch(createAlert({
                 message: `Created class ${info.name} successfully!`,
                 severity: 'success'
             }))
+            thunkApi.dispatch(getAllClassroom())
             return response.data
         } catch (err) {
             if (axios.isAxiosError(err)) {
@@ -136,6 +164,19 @@ export const resetClassCode = createAsyncThunk(
     }
 )
 
+export const getClassroom = createAsyncThunk(
+    'classrooms/getClassroom',
+    async (classId: string | undefined, thunkApi) => {
+        try {
+            const response = await classroomApi.getClassroom(classId!)
+            return response.data
+        } catch (err) {
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
+
+
 const classroomSlice = createSlice({
     name: 'Classroom',
     initialState,
@@ -154,9 +195,14 @@ const classroomSlice = createSlice({
         builder.addCase(getAllClassroom.rejected, (state) => {
             state.isLoading = false
         });
-        builder.addCase(createClassroom.fulfilled, (state, action) => {
-            state.teachingClassrooms.push(action.payload)
+        builder.addCase(getClassroom.fulfilled, (state, action) => {
+            const classroom = action.payload as Classroom
+            updateClassroomById(classroom._id!, state, classroom)
+
         });
+        // builder.addCase(createClassroom.fulfilled, (state, action) => {
+        //     state.teachingClassrooms.push(action.payload)
+        // });
         // builder.addCase(joinClassroomByClassCode.fulfilled, (state, action) => {
         //     state.enrolledClassrooms.push(action.payload)
         // });

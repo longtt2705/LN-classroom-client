@@ -5,6 +5,7 @@ export const NOT_STRONG_PASSWORD_ERROR_MESSAGE = "Password must contains lowerca
 export const NOT_EMAIL_ERROR_MESSAGE = "Invalid email! Please input a valid one!"
 export const LOGIN_FAILED = "Username or password is incorrect!"
 export const STUDENT_ID_WRONG = "Student Id must only contain number!"
+export const ONLY_DIGIT = "This field must only contain number!"
 
 
 export const createMessageInRangeError = (min?: number, max?: number) => {

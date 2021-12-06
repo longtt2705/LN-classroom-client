@@ -5,12 +5,10 @@ import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import { Avatar, Box, Button, Card, Checkbox, Divider, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { removeFromClassroom } from '../../../services/classroom';
-import { getUserDataById } from '../../../services/user';
-import { Classroom, getAllClassroom } from '../../../slices/classroom-slice';
-import { User } from '../../../slices/user-slice';
+import { Classroom, getClassroom, Role } from '../../../slices/classroom-slice';
 import InviteModal from './modal';
 
 const HorizontalCenterContainer = styled(Box)(({
@@ -118,7 +116,7 @@ const ActionSortListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 
-const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
+const People: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ classroom, role }) => {
     const [isActionClick, setIsActionClick] = useState(false)
     const [isSortClick, setIsSortClick] = useState(false)
     const [isMoreClickStudent, setIsMoreClickStudent] = useState(-1)
@@ -138,7 +136,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
         if (!isCheckAllStudent) {
             setIsCheckAllStudent(true)
             const listStudent = []
-            for (let i = 0; i < students.length; i++) {
+            for (let i = 0; i < classroom.students!.length; i++) {
                 listStudent.push(i)
             }
             setCheckedStudents(listStudent)
@@ -160,24 +158,13 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
         } else {
             const newCheckStudents = [...checkStudents, index]
             setCheckedStudents(newCheckStudents)
-            if (newCheckStudents.length === students.length) {
+            if (newCheckStudents.length === classroom.students!.length) {
                 setIsCheckAllStudent(true)
             }
         }
     }
-
-    const [teachers, setTeachers] = useState<User[]>([]);
-    const [students, setStudents] = useState<User[]>([]);
     const user = useAppSelector((state => state.userReducer.user))
 
-    const getUser = async (id: string, cb: any) => {
-        try {
-            const data = (await getUserDataById(id)).data
-            cb(data)
-        } catch (err) {
-            // ignore
-        }
-    }
 
     const dispatch = useAppDispatch()
 
@@ -185,29 +172,12 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
         try {
 
             await removeFromClassroom(classroom._id || "", userId || "", isStudent)
-            dispatch(getAllClassroom())
+            dispatch(getClassroom(classroom._id))
         } catch (err) {
             // ignore
             // console.log(err)
         }
     }
-
-    useEffect(() => {
-        const getUsersData = async () => {
-            const promisifyGetUserData = (listId: string[], cb: any) => {
-                return listId.map((id) => getUser(id, cb))
-            }
-            setStudents([])
-            setTeachers([])
-            if (classroom.studentsId) {
-                await Promise.all(promisifyGetUserData(classroom.studentsId, (data: User) => setStudents((students) => [...students, data])))
-            }
-            if (classroom.teachersId) {
-                await Promise.all(promisifyGetUserData(classroom.teachersId, (data: User) => setTeachers(teachers => [...teachers, data])))
-            }
-        }
-        getUsersData()
-    }, [classroom])
 
 
     const handleActionClick = () => {
@@ -245,7 +215,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
                             Teachers
                         </Typography>
                         {
-                            (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                            (role !== 'student') &&
                             (<TeacherInvite onClick={handleOpenModalTeacher}>
                                 <IconButton>
                                     <InviteIcon />
@@ -256,7 +226,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
                     </RowLabel>
                     <Divider color="#085c9a" />
                     <List>
-                        {teachers.map((teacher, index) => (
+                        {classroom.teachers!.map((teacher, index) => (
                             <ListItemButton key={index}>
                                 <RowLabelItem>
                                     <ListItem>
@@ -274,7 +244,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
                                         />
                                     </ListItem>
                                     {
-                                        (classroom.role === 'owner' && teacher._id !== user?._id) &&
+                                        (role === 'owner' && teacher._id !== user?._id) &&
                                         (
                                             <>
                                                 <IconButton
@@ -319,10 +289,10 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
                         </Typography>
                         <MemberAndInvite>
                             <NumberMember>
-                                {students.length} students
+                                {classroom.students!.length} students
                             </NumberMember>
                             {
-                                (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                                (role !== 'student') &&
                                 (<IconButton
                                     onClick={handleOpenModalStudent}
                                 >
@@ -334,7 +304,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
                     </RowLabel>
                     <Divider color="#085c9a" />
                     <RowLabel>
-                        {(classroom.role === 'owner' || classroom.role === 'teacher') &&
+                        {(role !== 'student') &&
                             (<><CheckboxAction>
                                 <Checkbox
                                     onChange={handleCheckAllStudent}
@@ -392,11 +362,11 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
 
                     </RowLabel>
                     <List>
-                        {students.map((student, index) => (
+                        {classroom.students!.map((student, index) => (
                             <ListItemButton key={index}>
                                 <RowLabelItem>
                                     {
-                                        (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                                        (role !== 'student') &&
                                         (
                                             <Checkbox
                                                 onChange={() => handleCheckStudent(index)}
@@ -419,7 +389,7 @@ const People: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
                                         />
                                     </ListItem>
                                     {
-                                        (classroom.role === 'owner' || classroom.role === 'teacher') &&
+                                        (role !== 'student') &&
                                         (<><IconButton
                                             ref={ref}
                                             onClick={() => {

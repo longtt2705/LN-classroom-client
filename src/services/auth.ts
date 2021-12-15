@@ -7,8 +7,10 @@ export const loginUser = (payload: { username: string, password: string, remembe
     return api.post(BASE_URL + "login", payload)
 }
 
-export const loginUserWithGoogle = () => {
-    return api.get(BASE_URL + "google")
+export const loginUserWithGoogle = (googleData: any) => {
+    return api.post(BASE_URL + "google", {
+        token: googleData.tokenId
+    })
 }
 
 export const checkAuthentication = () => {
@@ -22,4 +24,3 @@ export const registerUser = (user: User) => {
 export const logout = () => {
     return api.post(BASE_URL + "logout")
 }
-

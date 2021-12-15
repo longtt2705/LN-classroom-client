@@ -83,7 +83,24 @@ export const loginUser = createAsyncThunk(
     }
 )
 
-
+export const loginUserWithGoogle = createAsyncThunk(
+    'users/loginUserWithGoogle',
+    async (googleData: any, thunkApi) => {
+        try {
+            const response = await authApi.loginUserWithGoogle(googleData)
+            return response.data
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const message = LOGIN_FAILED || ERROR_MESSAGE
+                thunkApi.dispatch(createAlert({
+                    message,
+                    severity: 'error'
+                }))
+            }
+            return thunkApi.rejectWithValue(err)
+        }
+    }
+)
 
 export const updateProfile = createAsyncThunk(
     'users/updateProfile',
@@ -144,6 +161,10 @@ const userSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(loginUser.fulfilled, (state, action) => {
+            state.user = action.payload
+            state.isAuthenticated = true
+        });
+        builder.addCase(loginUserWithGoogle.fulfilled, (state, action) => {
             state.user = action.payload
             state.isAuthenticated = true
         });

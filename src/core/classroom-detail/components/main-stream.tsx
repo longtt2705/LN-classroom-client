@@ -1,16 +1,16 @@
-import { FunctionComponent, useState } from "react";
-import { styled } from '@mui/material/styles';
-import { Box, CardMedia, Card, Typography, IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ReplayIcon from '@mui/icons-material/Replay';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import { Classroom, copyInviteLink, resetClassCode } from "../../../slices/classroom-slice";
-import { copyToClipboard } from "../../../utils/function";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ReplayIcon from '@mui/icons-material/Replay';
+import { Box, Card, CardMedia, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { FunctionComponent, useState } from "react";
 import { useAppDispatch } from "../../../app/hooks";
 import { createAlert } from "../../../slices/alert-slice";
+import { Classroom, copyInviteLink, GradeStructure, resetClassCode, Role } from "../../../slices/classroom-slice";
+import { copyToClipboard } from "../../../utils/function";
 
 const HorizontalCenterContainer = styled(Box)(({
     width: "80%",
@@ -142,15 +142,67 @@ const MoreListItemButton = styled(ListItemButton)(({ theme }) => ({
     height: theme.spacing(8)
 }))
 
-interface MainStreamProps {
-    classroom: Classroom
+const HomeWork = styled(Box)(({ theme }) => ({
+    width: theme.spacing(45),
+    marginTop: theme.spacing(8),
+    display: "flex",
+    flexDirection: "column",
+    borderRadius: theme.spacing(2.75)
+}))
 
+const TitleHomeWork = styled(Typography)(({ theme }) => ({
+    width: "70%",
+    fontSize: theme.fontSizes.default,
+    fontWeight: "bold",
+    color: theme.colors.texting.gradeStruct,
+    marginLeft: theme.spacing(4),
+    paddingBottom: theme.spacing(2),
+}))
+
+const PointHomeWork = styled(Typography)(({ theme }) => ({
+    width: "30%",
+    fontSize: theme.fontSizes.default,
+    fontWeight: "bold",
+    color: theme.colors.texting.gradeStruct,
+    textAlign: "center",
+    marginRight: theme.spacing(2.5),
+    paddingBottom: theme.spacing(2)
+}))
+
+const TitleBox = styled(Box)(({ theme }) => ({
+    height: "100%",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center"
+}))
+
+const Title = styled(Typography)(({ theme }) => ({
+    fontSize: theme.fontSizes.changePass,
+    fontWeight: 550,
+    color: theme.colors.texting.classcode,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(4),
+}))
+
+const RowTitleGradeStructure = styled(Box)(({ theme }) => ({
+    width: "100%",
+    display: "flex",
+    flexDirection: "row"
+}))
+
+
+interface MainStreamProps {
+    classroom: Classroom,
+    gradeStructure?: GradeStructure,
+    role: Role
 }
 
-const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
+const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStructure, role }) => {
     const [inforButton, setInforButton] = useState(false)
     const [moreButton, setMoreButton] = useState(false)
     const dispatch = useAppDispatch()
+
     const handleInforButton = () => {
         setInforButton(!inforButton)
     }
@@ -198,12 +250,12 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                         </ClassInforCom>
                     )
                 }
-                <ClassCode>
+                <ClassCode sx={{ boxShadow: 6 }}>
                     <RowClassCode>
                         <ClassCodeText>
                             Class Code:
                         </ClassCodeText>
-                        {classroom.role !== 'student' &&
+                        {role !== 'student' &&
                             <MoreButton
                                 onClick={handleMoreButton}
                             >
@@ -212,7 +264,7 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                         }
                     </RowClassCode>
                     <CodeClassText>{classroom.classCode}</CodeClassText>
-                    {classroom.role !== 'student' && moreButton &&
+                    {role !== 'student' && moreButton &&
                         (
                             <MoreCard>
                                 <MoreList>
@@ -254,6 +306,31 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom }) => {
                     }
 
                 </ClassCode>
+                <HomeWork
+                    sx={{ boxShadow: 6 }}
+                >
+                    <Title>
+                        Grade Structure
+                    </Title>
+                    {gradeStructure ? gradeStructure.gradeStructuresDetails && (
+                                gradeStructure.gradeStructuresDetails.map((value) => {
+                                    return (
+                                        <RowTitleGradeStructure>
+                                            <TitleHomeWork>{value.title}</TitleHomeWork>
+                                            <PointHomeWork>{value.point}</PointHomeWork>
+                                        </RowTitleGradeStructure>
+                                    )
+                                })
+                        ) : (
+                        <TitleBox>
+                            <TitleHomeWork>
+                                There are no grades structure yet
+                            </TitleHomeWork>
+                        </TitleBox>
+                    )
+
+                    }
+                </HomeWork>
             </Banner>
         </HorizontalCenterContainer>
     )

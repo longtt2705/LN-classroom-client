@@ -1,23 +1,18 @@
-import React, { useState } from "react";
+import { Box, Card, Divider, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from "react";
 import {
-    DragDropContext,
-    Droppable,
-    Draggable,
-    DropResult,
-    ResponderProvided,
-    DraggableProvided,
-    DroppableProvided,
-    DraggableStateSnapshot
+    DragDropContext, Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProvided, DropResult,
+    ResponderProvided
 } from "react-beautiful-dnd";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow
-} from "@mui/material";
-import ReorderIcon from "@mui/icons-material/Reorder";
+import { useAppDispatch } from "../../app/hooks";
+import { addGradeStructure, removeGradeStructure, addNewGradeStructureDetail, updateGradeStructure } from '../../services/classroom';
+import { ERROR_MESSAGE } from "../../shared/messages";
+import { createAlert } from "../../slices/alert-slice";
+import { getClassroom, GradeStructure, GradeStructureDetail } from "../../slices/classroom-slice";
+import AddCardCreator from "./components/add-card-creator";
+import CardCreator from './components/card-creator';
+
 
 /* 
 Note: this is a working example, but more can be done to improve it.
@@ -33,16 +28,139 @@ Pre-drag dimensions can be obtained via the new-ish ResizeObserver API. If you a
 components, the getSnapshotBeforeUpdate() lifecycle method can work with getBoundingClientRect(), 
 */
 
-export interface DataItem {
-    uuid: string;
-    description: string;
-    unitPrice: number;
-    quantity: number;
+const HorizontalCenterContainer = styled(Box)(({ theme }) => ({
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    // backgroundColor: theme.colors.background.structBackGround
+}))
+
+const BoxContainer = styled(Box)(({ theme }) => ({
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "70%",
+    marginTop: theme.spacing(10)
+}))
+
+const ListContainer = styled(Box)(({ theme }) => ({
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+}))
+
+const GradeInfor = styled(Card)(({ theme }) => ({
+    width: "60%",
+    height: theme.spacing(35),
+    display: "flex",
+    flexDirection: "column",
+    backgroundColor: theme.colors.background.white,
+    marginTop: theme.spacing(6),
+    borderRadius: theme.spacing(2.75)
+}))
+
+const GradeInforTitle = styled(Typography)(({ theme }) => ({
+    fontSize: theme.fontSizes.gradeStruct,
+    fontWeight: "bold",
+    marginTop: theme.spacing(4),
+    marginLeft: theme.spacing(8),
+}))
+
+const GradeInforTitleSub = styled(Typography)(({ theme }) => ({
+    fontSize: theme.fontSizes.changePass,
+    fontWeight: "bold",
+    marginBottom: theme.spacing(4),
+    marginLeft: theme.spacing(8)
+}))
+
+const LineGradeInfor = styled(Divider)(({ theme }) => ({
+    width: "100%",
+    height: theme.spacing(2),
+    backgroundColor: theme.colors.texting.textLabel
+}))
+
+interface GradeStructureProps {
+    gradeStructure?: GradeStructure,
+    classId: string
 }
 
-export const MaterialTable: React.FC<{ items: DataItem[] }> = ({ items }) => {
+export const GradeStructurePage: FunctionComponent<GradeStructureProps> = ({ gradeStructure, classId }) => {
     // cache the items provided via props in state for purposes of this demo
-    const [localItems, setLocalItems] = useState<Array<DataItem>>(items);
+    const [localItems, setLocalItems] = useState<Array<GradeStructureDetail>>(gradeStructure?.gradeStructuresDetails || []);
+    const dispatch = useAppDispatch()
+    const prevItems = useRef(localItems)
+
+    const checkIfListIsChange = useCallback(
+        () => {
+            if (prevItems.current.length !== localItems.length)
+                return true;
+            for (let i = 0; i < localItems.length; ++i) {
+                if (prevItems.current[i]._id !== localItems[i]._id)
+                    return true;
+            }
+            return false;
+        },
+        [localItems],
+    );
+
+    useEffect(() => {
+        setLocalItems(gradeStructure?.gradeStructuresDetails || []);
+    }, [gradeStructure])
+
+    useEffect(() => {
+        const updateItems = async () => {
+            await updateGradeStructure(classId, {
+                ...gradeStructure,
+                gradeStructuresDetails: localItems
+            })
+            prevItems.current = localItems
+            dispatch(getClassroom(classId))
+        }
+
+        if (checkIfListIsChange()) {
+            updateItems()
+        }
+    }, [localItems, checkIfListIsChange, classId, gradeStructure, dispatch])
+
+
+    const handleAdd = async (title: string, description: string, point: number) => {
+        try {
+            await addGradeStructure(classId, title, description, point)
+            dispatch(getClassroom(classId))
+        } catch (err) {
+            dispatch(createAlert({
+                message: ERROR_MESSAGE,
+                severity: "error"
+            }))
+        }
+    }
+
+    const handleEditGrade = async (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
+        try {
+            await addNewGradeStructureDetail(classId, gradeStructureId, title, description, point)
+
+        } catch (err) {
+            dispatch(createAlert({
+                message: ERROR_MESSAGE,
+                severity: "error"
+            }))
+        }
+    }
+
+    const handleDelete = async (classId: string, gradeStructureId: string) => {
+        try {
+            await removeGradeStructure(classId, gradeStructureId)
+            dispatch(getClassroom(classId))
+        } catch (err) {
+            dispatch(createAlert({
+                message: ERROR_MESSAGE,
+                severity: "error"
+            }))
+        }
+    }
 
     // normally one would commit/save any order changes via an api call here...
     const handleDragEnd = (result: DropResult, provided?: ResponderProvided) => {
@@ -62,38 +180,32 @@ export const MaterialTable: React.FC<{ items: DataItem[] }> = ({ items }) => {
 
             return temp;
         });
+
     };
 
     return (
-        <TableContainer>
-            <Table>
-                <colgroup>
-                    <col style={{ width: "5%" }} />
-                    <col style={{ width: "35%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "20%" }} />
-                </colgroup>
-                <TableHead>
-                    <TableRow>
-                        <TableCell align="left">&nbsp;</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell align="right">Unit Cost</TableCell>
-                        <TableCell align="right">Qty/Rate</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                    </TableRow>
-                </TableHead>
+        <HorizontalCenterContainer>
+            <BoxContainer>
+                <GradeInfor>
+                    <LineGradeInfor />
+                    <GradeInforTitle>
+                        Grade Structure
+                    </GradeInforTitle>
+                    <GradeInforTitleSub>
+                        Edit your classroom grade structure
+                    </GradeInforTitleSub>
+                </GradeInfor>
                 <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="droppable" direction="vertical">
                         {(droppableProvided: DroppableProvided) => (
-                            <TableBody
+                            <ListContainer
                                 ref={droppableProvided.innerRef}
                                 {...droppableProvided.droppableProps}
                             >
-                                {localItems.map((item: DataItem, index: number) => (
+                                {localItems.map((item: GradeStructureDetail, index: number) => (
                                     <Draggable
-                                        key={item.uuid}
-                                        draggableId={item.uuid}
+                                        key={item._id}
+                                        draggableId={item._id!}
                                         index={index}
                                     >
                                         {(
@@ -101,39 +213,24 @@ export const MaterialTable: React.FC<{ items: DataItem[] }> = ({ items }) => {
                                             snapshot: DraggableStateSnapshot
                                         ) => {
                                             return (
-                                                <TableRow
-                                                    ref={draggableProvided.innerRef}
-                                                    {...draggableProvided.draggableProps}
-                                                    style={{
-                                                        ...draggableProvided.draggableProps.style,
-                                                        background: snapshot.isDragging
-                                                            ? "rgba(245,245,245, 0.75)"
-                                                            : "none"
-                                                    }}
-                                                >
-                                                    {/* note: `snapshot.isDragging` is useful to style or modify behaviour of dragged cells */}
-                                                    <TableCell align="left">
-                                                        <div {...draggableProvided.dragHandleProps}>
-                                                            <ReorderIcon />
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>{item.description}</TableCell>
-                                                    <TableCell align="right">{item.unitPrice}</TableCell>
-                                                    <TableCell align="right">{item.quantity}</TableCell>
-                                                    <TableCell align="right">
-                                                        {(item.unitPrice * item.quantity).toFixed(2)}
-                                                    </TableCell>
-                                                </TableRow>
+                                                <CardCreator
+                                                    draggableProvided={draggableProvided}
+                                                    item={item}
+                                                    classId={classId}
+                                                    handleDelete={handleDelete}
+                                                    handleEditGrade={handleEditGrade}
+                                                />
                                             );
                                         }}
                                     </Draggable>
                                 ))}
                                 {droppableProvided.placeholder}
-                            </TableBody>
+                                <AddCardCreator handleAdd={handleAdd} />
+                            </ListContainer>
                         )}
                     </Droppable>
                 </DragDropContext>
-            </Table>
-        </TableContainer>
+            </BoxContainer>
+        </HorizontalCenterContainer >
     );
 };

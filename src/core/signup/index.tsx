@@ -14,10 +14,13 @@ import OAuthButton, { Provider } from '../components/oauth-button';
 import SignUpImage from '../../public/images/signup-classroom.jpg';
 import { emailValidation, notEmptyValidation, passwordValidation, usernameValidation, useValidator, useValidatorManagement } from '../../utils/validator';
 import { useAppDispatch } from '../../app/hooks';
-import { registerUser } from '../../slices/user-slice';
+import { loginUserWithGoogle, registerUser } from '../../slices/user-slice';
 import { useHistory } from "react-router-dom";
 import axios from 'axios';
-import { get } from 'lodash';
+import { get, noop } from 'lodash';
+import { createAlert } from '../../slices/alert-slice';
+import { ERROR_MESSAGE } from '../../shared/messages';
+import GoogleLogin from 'react-google-login';
 
 
 const theme = createTheme();
@@ -69,6 +72,17 @@ export default function SignIn() {
     };
 
     const handleOnChange = validatorFields.handleOnChange
+
+    const handleSuccess = (googleData: any) => {
+        dispatch(loginUserWithGoogle(googleData))
+    }
+
+    const handleFailure = () => {
+        dispatch(createAlert({
+            message: ERROR_MESSAGE,
+            severity: 'error'
+        }))
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -154,8 +168,16 @@ export default function SignIn() {
                                     {"Already had an account? Sign In now!"}
                                 </Link>
                             </Typography>
-                            <OAuthButton name={Provider.GOOGLE} />
-                            <OAuthButton name={Provider.FACEBOOK} />
+                            <GoogleLogin
+                                clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}
+                                render={renderProps => (
+                                    <OAuthButton name={Provider.GOOGLE} onClick={renderProps.onClick} disabled={renderProps.disabled} />
+                                )}
+                                cookiePolicy={'single_host_origin'}
+                                onSuccess={handleSuccess}
+                                onFailure={handleFailure}
+                            />
+                            <OAuthButton name={Provider.FACEBOOK} onClick={noop} disabled={true} />
                         </Box>
                     </StyledCard>
                 </VerticalCenterContainer>

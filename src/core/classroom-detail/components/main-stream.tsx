@@ -4,7 +4,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ReplayIcon from '@mui/icons-material/Replay';
-import { Box, Card, CardMedia, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Box, Card, CardMedia, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FunctionComponent, useState } from "react";
 import { useAppDispatch } from "../../../app/hooks";
@@ -313,15 +313,15 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                         Grade Structure
                     </Title>
                     {gradeStructure ? gradeStructure.gradeStructuresDetails && (
-                                gradeStructure.gradeStructuresDetails.map((value) => {
-                                    return (
-                                        <RowTitleGradeStructure>
-                                            <TitleHomeWork>{value.title}</TitleHomeWork>
-                                            <PointHomeWork>{value.point}</PointHomeWork>
-                                        </RowTitleGradeStructure>
-                                    )
-                                })
-                        ) : (
+                        gradeStructure.gradeStructuresDetails.map((value) => {
+                            return (
+                                <RowTitleGradeStructure>
+                                    <TitleHomeWork>{value.title}</TitleHomeWork>
+                                    <PointHomeWork>{value.point}</PointHomeWork>
+                                </RowTitleGradeStructure>
+                            )
+                        })
+                    ) : (
                         <TitleBox>
                             <TitleHomeWork>
                                 There are no grades structure yet

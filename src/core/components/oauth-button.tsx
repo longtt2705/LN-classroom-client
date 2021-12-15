@@ -11,7 +11,9 @@ export enum Provider {
     FACEBOOK = "facebook"
 }
 interface OauthButtonProps {
-    name: Provider
+    name: Provider,
+    onClick: any,
+    disabled: boolean | undefined
 }
 
 const Logo = styled('img')`
@@ -20,7 +22,7 @@ const Logo = styled('img')`
     margin-right: 8px;
 `
 
-const OAuthButton: FunctionComponent<OauthButtonProps> = ({ name }) => {
+const OAuthButton: FunctionComponent<OauthButtonProps> = ({ name, onClick, disabled }) => {
     const getIcon = () => {
         switch (name) {
             case Provider.GOOGLE:
@@ -30,20 +32,8 @@ const OAuthButton: FunctionComponent<OauthButtonProps> = ({ name }) => {
         }
     }
 
-    const handleClick = () => {
-        switch (name) {
-            case Provider.GOOGLE: {
-                const url = process.env.REACT_APP_GOOGLE_AUTH_URL || ""
-                window.open(url, "_self");
-                break;
-            }
-            case Provider.FACEBOOK:
-                break
-        }
-    }
-
     return (
-        <Button sx={{ borderRadius: '29px', mb: 1, mt: 1 }} variant="outlined" fullWidth onClick={handleClick}>
+        <Button sx={{ borderRadius: '29px', mb: 1, mt: 1 }} variant="outlined" fullWidth onClick={onClick} disabled={disabled}>
             <Logo src={getIcon()} />
             <Typography variant="button"> Continue with {startCase(name)} </Typography>
         </Button>

@@ -15,10 +15,13 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import SignInImage from '../../public/images/signin-classroom.jpg';
-import { LOGIN_FAILED } from '../../shared/messages';
-import { loginUser } from '../../slices/user-slice';
+import { ERROR_MESSAGE, LOGIN_FAILED } from '../../shared/messages';
+import { loginUser, loginUserWithGoogle } from '../../slices/user-slice';
 import { VerticalCenterContainer } from '../components/container';
 import OAuthButton, { Provider } from '../components/oauth-button';
+import GoogleLogin from 'react-google-login';
+import { noop } from 'lodash';
+import { createAlert } from '../../slices/alert-slice';
 
 
 const theme = createTheme();
@@ -58,6 +61,17 @@ export default function SignIn() {
             setErrors(LOGIN_FAILED)
         }
     };
+
+    const handleSuccess = (googleData: any) => {
+        dispatch(loginUserWithGoogle(googleData))
+    }
+
+    const handleFailure = () => {
+        dispatch(createAlert({
+            message: ERROR_MESSAGE,
+            severity: 'error'
+        }))
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -121,8 +135,16 @@ export default function SignIn() {
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Typography>
-                            <OAuthButton name={Provider.GOOGLE} />
-                            <OAuthButton name={Provider.FACEBOOK} />
+                            <GoogleLogin
+                                clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}
+                                render={renderProps => (
+                                    <OAuthButton name={Provider.GOOGLE} onClick={renderProps.onClick} disabled={renderProps.disabled} />
+                                )}
+                                cookiePolicy={'single_host_origin'}
+                                onSuccess={handleSuccess}
+                                onFailure={handleFailure}
+                            />
+                            <OAuthButton name={Provider.FACEBOOK} onClick={noop} disabled={true} />
                         </Box>
                     </StyledCard>
                 </VerticalCenterContainer>

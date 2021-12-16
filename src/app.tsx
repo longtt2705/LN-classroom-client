@@ -49,7 +49,7 @@ const App = () => {
                     (<Switch>
                         <Route exact path={"/login"} component={LoginPage} />
                         <Route exact path={"/register"} component={RegisterPage} />
-                        <Route path={"/"} render={() => {
+                        <Route path={"*"} render={() => {
                             if (location.pathname !== '/')
                                 localStorage.setItem(PRE_URL, location.pathname)
                             return <Redirect to='/login' />
@@ -69,7 +69,7 @@ const App = () => {
                         <Route path={"/classrooms/:id"} component={ClassroomDetail} />
                         <Route exact path={"/invite/:token"} component={Invitation} />
                         <Route exact path={"/profile"} component={UserProfile} />
-                        <Route path={"/"} component={PageNotFound} />
+                        <Route path={"*"} component={PageNotFound} />
                     </Layout>)
             }
             <AlertSnackBar />

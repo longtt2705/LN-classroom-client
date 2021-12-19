@@ -67,7 +67,7 @@ const AddCardCreator: FunctionComponent<AddCardCreatorProps> = ({ handleAdd }) =
         validatorFields.validate()
         if (!validatorFields.hasError()) {
             const payload = validatorFields.getValuesObject()
-            handleAdd(payload.title, payload.description, parseInt(payload.point))
+            handleAdd(payload.title, payload.description, parseFloat(payload.point))
         }
 
     }

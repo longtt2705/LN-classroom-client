@@ -3,6 +3,7 @@ import isEmpty from "validator/lib/isEmpty"
 import isLength from "validator/lib/isLength"
 import isEmail from "validator/lib/isEmail"
 import isInt from "validator/lib/isInt"
+import isFloat from "validator/lib/isFloat"
 import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE, ONLY_DIGIT, STUDENT_ID_WRONG } from "../shared/messages"
 import { useState } from "react"
 export default class InputFieldValidator {
@@ -174,7 +175,7 @@ export const studentIdValidation = (stringToValidate: string) => {
 }
 
 export const onlyNumberValidation = (stringToValidate: string) => {
-    if (isInt(stringToValidate)) {
+    if (isFloat(stringToValidate)) {
         return NO_MESSAGE
     }
     return ONLY_DIGIT

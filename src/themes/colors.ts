@@ -11,6 +11,7 @@ export interface Colors {
         button:string,
         classcode:string,
         gradeStruct:string,
+        gradeName:string,
     }
 }
 
@@ -27,6 +28,7 @@ const colors = {
         button:"#0E6E2E",
         classcode:"#5F7076",
         gradeStruct:"#0b798d",
+        gradeName:"#1e81b0",
     }
 }
 

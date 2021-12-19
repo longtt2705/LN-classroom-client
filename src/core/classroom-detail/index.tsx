@@ -14,6 +14,7 @@ import PageNotFound from "../components/page-not-found";
 import { GradeStructurePage } from "../grade-structure";
 import MainStream from "./components/main-stream";
 import People from "./components/people";
+import GradeStructPoint from '../grade-structure-point';
 
 const ClassroomDetail: FunctionComponent = () => {
     const { id } = useParams<{ id: string }>()
@@ -62,15 +63,25 @@ const ClassroomDetail: FunctionComponent = () => {
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <HorizontalCenterContainer>
                                 <TabList onChange={handleChange} aria-label="lab API tabs example">
-                                    <Tab label="Main Stream" value="1" />
-                                    <Tab label="People" value="2" />
-                                    <Tab label="Grade Structure" value="3" />
+                                    <Tab label="Main Stream" value="1" key={1}/>
+                                    <Tab label="People" value="2" key={2}/>
+                                    {
+                                        (role !== "student") && (
+                                            <Tab label="Grade Structure" value="3" key={3}/>
+                                        )
+                                    }
+                                    <Tab label="Grade Board" value="4" key={4}/>
                                 </TabList>
                             </HorizontalCenterContainer>
                         </Box>
                         <TabPanel value="1" key={1}><MainStream classroom={classroom} gradeStructure={gradeStructure} role={role} /></TabPanel>
                         <TabPanel value="2" key={2}><People classroom={classroom} role={role} /></TabPanel>
-                        <TabPanel value="3" key={3}><GradeStructurePage gradeStructure={gradeStructure} classId={classroom._id!} /></TabPanel>
+                        {
+                            (role !== "student") && (
+                                <TabPanel value="3" key={3}><GradeStructurePage gradeStructure={gradeStructure} classId={classroom._id!} /></TabPanel>
+                            )
+                        }
+                        <TabPanel value="4" key={4}><GradeStructPoint classroom={classroom} role={role} /></TabPanel>
                     </TabContext>
                 </Route>
             </Switch>

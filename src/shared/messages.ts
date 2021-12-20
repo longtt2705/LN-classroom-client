@@ -6,6 +6,7 @@ export const NOT_EMAIL_ERROR_MESSAGE = "Invalid email! Please input a valid one!
 export const LOGIN_FAILED = "Username or password is incorrect!"
 export const STUDENT_ID_WRONG = "Student Id must only contain number!"
 export const ONLY_DIGIT = "This field must only contain number!"
+export const POINT_STRONG_ERROR_MESSAGE = "Point must be from 0 to 10!"
 
 
 export const createMessageInRangeError = (min?: number, max?: number) => {

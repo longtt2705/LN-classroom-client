@@ -1,10 +1,11 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import PersonIcon from '@mui/icons-material/Person';
-import { Avatar, Box, Button, Checkbox, Divider, IconButton, Input, List, ListItem, ListItemButton, Typography } from "@mui/material";
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { Avatar, Box, Button, Checkbox, Divider, IconButton, List, ListItem, ListItemButton, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React, { FunctionComponent, useState } from "react";
 import { Classroom, Role } from '../../../slices/classroom-slice';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import PointModal from "./modal"
 
 const Root = styled('div')`
   table {
@@ -100,14 +101,15 @@ const StudentName = styled(Typography)(({ theme }) => ({
     fontWeight: "bold",
 }))
 
-const PointInput = styled(Input)(({ theme }) => ({
+const PointText = styled(Typography)(({ theme }) => ({
+    width: "100%",
     height: "100%",
-    weight: "80%",
-    border: "none",
-    marginLeft: theme.spacing(1),
-    color: theme.colors.texting.button,
-    fontSize: theme.fontSizes.changePass,
+    fontSizes: theme.fontSizes.default,
     fontWeight: "bold",
+    color: theme.colors.texting.button,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
 }))
 
 const BoxFinal = styled(Box)(({ theme }) => ({
@@ -211,8 +213,12 @@ const DownloadText = styled(Typography)(({ theme }) => ({
     fontWeight: "bold",
 }))
 
+
 const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ classroom, role }) => {
     const [downloadClick, setDownloadClick] = useState(false)
+    const [isOpenModalPoint,setIsOpenModalPoint]=useState(false)
+    const [homeworkIndex,setHomeworkIndex]=useState(0)
+    const classId=classroom?._id||""
 
     const gradeStructure = (classroom && classroom.gradeStructure)
     const homeworks = gradeStructure?.gradeStructuresDetails || []
@@ -222,6 +228,12 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
     const handleDownloadClick = () => {
         setDownloadClick(!downloadClick)
     }
+
+    const handleOpenModalPoint=(homeworkInd:number)=>{
+        setHomeworkIndex(homeworkInd)
+        setIsOpenModalPoint(true)
+    }
+    const handleCloseModalPoint=()=>setIsOpenModalPoint(false)
 
     const handleDownloadStudentClick = () => {
         setDownloadClick(!downloadClick)
@@ -256,13 +268,6 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                         Upload
                     </UpDownImpButton>
                 </BoxImportButton>
-                <UpDownImpButton
-                        variant="contained"
-                        color="success"
-                        disabled={(role === "owner") ? false : true}
-                    >
-                        Save
-                    </UpDownImpButton>
             </ButtonBox>
             {
                 (downloadClick) && (
@@ -307,7 +312,7 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                                         </BoxSort>
                                     </th>
                                     {(homeworks.map((homework, inx) => (
-                                        <th style={{ minWidth: "120px" }} key={inx}>
+                                        <th style={{ minWidth: "180px" }} key={inx}>
                                             <GradeBox>
                                                 <GradeName>{homework.title}</GradeName>
                                                 <LineGrade />
@@ -353,21 +358,24 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                                             </td>
                                             {(homeworks.map((homework, inx) => (
                                                 <td key={inx}>
-                                                    <PointInput
-                                                        disableUnderline={true}
-                                                    />
+                                                    <ListItemButton
+                                                    onClick={()=>handleOpenModalPoint(inx)}
+                                                    >
+                                                        <PointText>point</PointText>
+                                                    </ListItemButton>
                                                 </td>
                                             )))}
                                             <td>
-                                                <PointInput
-                                                    disableUnderline={true}
-                                                />
+                                                <PointText>point</PointText>
                                             </td>
+                                            <PointModal isOpen={isOpenModalPoint} onClose={handleCloseModalPoint} homework={homeworks[homeworkIndex]} student={student} classId={classId}/>
                                         </tr>
                                     )))
+                                    
                                 }
                             </tbody>
                         </table>
+                        
                     ) :
                         (
                             <HorizontalCenterContainer >

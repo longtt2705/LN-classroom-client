@@ -4,7 +4,7 @@ import isLength from "validator/lib/isLength"
 import isEmail from "validator/lib/isEmail"
 import isInt from "validator/lib/isInt"
 import isFloat from "validator/lib/isFloat"
-import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE, ONLY_DIGIT, STUDENT_ID_WRONG } from "../shared/messages"
+import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE, ONLY_DIGIT, POINT_STRONG_ERROR_MESSAGE, STUDENT_ID_WRONG } from "../shared/messages"
 import { useState } from "react"
 export default class InputFieldValidator {
     name: string;
@@ -177,6 +177,15 @@ export const studentIdValidation = (stringToValidate: string) => {
 export const onlyNumberValidation = (stringToValidate: string) => {
     if (isFloat(stringToValidate)) {
         return NO_MESSAGE
+    }
+    return ONLY_DIGIT
+}
+
+export const pointValidation = (stringToValidate: string) => {
+    if (isFloat(stringToValidate)) {
+        if (isFloat(stringToValidate,{min:0.0,max:10.0}))
+        return NO_MESSAGE
+        else return POINT_STRONG_ERROR_MESSAGE
     }
     return ONLY_DIGIT
 }

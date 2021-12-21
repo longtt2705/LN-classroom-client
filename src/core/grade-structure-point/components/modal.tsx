@@ -1,7 +1,11 @@
 import { Box, Button, Card, Modal, TextField, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useState } from "react";
+import { useAppDispatch } from "../../../app/hooks";
+import { updateStudentPoint } from "../../../services/classroom";
+import { createAlert } from "../../../slices/alert-slice";
 import { pointValidation, useValidator } from "../../../utils/validator";
+import SpinnerLoading from "../../components/spinner-loading";
 
 const MarkPointCard = styled(Card)(({ theme }) => ({
     width: "30%",
@@ -33,9 +37,10 @@ const RightAlignContainer = styled(Box)(({ theme }) => ({
 interface ModalProps {
     isOpen: boolean,
     onClose: any,
-    homework:any,
-    student:any,
-    classId:string,
+    homework: any,
+    student: any,
+    classId: string,
+    fetchStudents: any
 }
 
 const StudentIdText = styled(Typography)(({ theme }) => ({
@@ -43,17 +48,42 @@ const StudentIdText = styled(Typography)(({ theme }) => ({
     fontWeight: "bold",
 }))
 
-const PointModal: FunctionComponent<ModalProps> = ({ isOpen, onClose,homework,student,classId }) => {
+const PointModal: FunctionComponent<ModalProps> = ({ isOpen, onClose, homework, student, classId, fetchStudents }) => {
     const point = useValidator("point", pointValidation, "")
-
+    const [isLoading, setIsLoading] = useState(false)
+    const dispatch = useAppDispatch()
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         point.handleOnChange(event.target.value)
+    }
+
+    const handleSubmit = async () => {
+        point.validate()
+        if (!point.hasError()) {
+            try {
+                setIsLoading(true)
+                await updateStudentPoint(classId, homework._id!, { point: parseFloat(point.value), studentId: student.studentId })
+                fetchStudents()
+                dispatch(createAlert({
+                    message: "Update student point successfully!",
+                    severity: 'success'
+                }))
+
+            } catch (err) {
+                dispatch(createAlert({
+                    message: "Update student point failed!",
+                    severity: 'error'
+                }))
+            } finally {
+                setIsLoading(false)
+                onClose(student.studentId)
+            }
+        }
     }
 
     return (
         <Modal
             open={isOpen}
-            onClose={onClose}
+            onClose={() => onClose(student.studentId)}
         >
             <MarkPointCard>
                 <GradeTitleText>
@@ -74,9 +104,12 @@ const PointModal: FunctionComponent<ModalProps> = ({ isOpen, onClose,homework,st
                     }
                 />
                 <RightAlignContainer>
-                    <Button variant="contained" color="success" disabled={point.hasError() || point.value.length === 0}>Save</Button>
+                    {
+                        isLoading ? <SpinnerLoading /> : <Button variant="contained" color="success" disabled={point.hasError() || point.value.length === 0} onClick={handleSubmit}>Save</Button>
+                    }
+
                     <Box ml={2}></Box>
-                    <Button color="error" onClick={onClose}>Cancel</Button>
+                    <Button color="error" onClick={() => onClose(student.studentId)}>Cancel</Button>
                 </RightAlignContainer>
             </MarkPointCard>
 

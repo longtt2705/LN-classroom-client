@@ -15,6 +15,7 @@ export interface User {
     isActive?: boolean,
     provider?: string,
     studentId?: string,
+    hasInputStudentId?: boolean
 };
 
 interface InitialState {

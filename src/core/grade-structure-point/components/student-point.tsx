@@ -6,8 +6,13 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import React, { FunctionComponent } from "react";
-import { Classroom } from "../../../slices/classroom-slice";
+import { round } from "lodash";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { getStudentGradeBoard } from "../../../services/classroom";
+import { createAlert } from "../../../slices/alert-slice";
+import { Classroom, GradeStructureDetail } from "../../../slices/classroom-slice";
+import SpinnerLoading from "../../components/spinner-loading";
 
 
 const HorizontalCenterContainer = styled(Box)(({
@@ -56,66 +61,152 @@ const NoHomeWorkText = styled(Typography)(({ theme }) => ({
     fontWeight: "bold",
 }))
 
-const StudentPoint: FunctionComponent<{classroom:Classroom}> = ({classroom}) => {
+const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
     const gradeStructure = (classroom && classroom.gradeStructure)
     const homeworks = gradeStructure?.gradeStructuresDetails || []
-    return (
-        <HorizontalCenterContainer>
-            {
-                (homeworks.length !== 0) ? (
-                    <CardPoint>
-                        <TableContainer>
-                            <Table sx={{ width: 650 }}>
-                                <HeadTable>
-                                    <TableRow>
-                                        <TableCell>
-                                            <HeadTableText>
-                                                Homework
-                                            </HeadTableText>
+    const user = useAppSelector((state) => state.userReducer.user)
 
-                                        </TableCell>
-                                        <TableCell>
-                                            <HeadTableText>
-                                                Point
-                                            </HeadTableText>
-                                        </TableCell>
-                                    </TableRow>
-                                </HeadTable>
-                                <TableBody>
-                                    {homeworks.map((homework, index) => (
+    const [isLoading, setLoading] = useState(false)
+    const [student, setStudent] = useState<any>(null)
+    const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true)
+            try {
+                const { data } = await getStudentGradeBoard(classroom._id!, user!.studentId!)
+                setStudent(data)
+            } catch {
+                dispatch(createAlert({
+                    message: 'Error when trying to fetch grade board!',
+                    severity: 'error'
+                }))
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [dispatch, classroom._id, user])
+
+    const getStudentGrade = (homework: GradeStructureDetail) => {
+        if (homework.isFinalized && student) {
+            const result = student.grade.find((grade: any) => {
+                return grade.gradeStructureDetail === homework._id!
+            })
+            return result ? result.point : "0"
+        }
+        return "0"
+    }
+
+    const getRealStudentGrade = (homework: GradeStructureDetail) => {
+        return round(parseFloat(getStudentGrade(homework)) / 10 * homework.point, 2)
+    }
+
+    const getStudentTotalGrade = () => {
+        let total = 0
+        homeworks.forEach((homework) => {
+            total += getRealStudentGrade(homework)
+        })
+
+        return total
+    }
+
+    const getTotalGrade = () => {
+        return homeworks.reduce((total, currentValue) => {
+            return total + currentValue.point
+        }, 0)
+    }
+
+    const getGPA = () => {
+        return round(getStudentTotalGrade() * getTotalGrade() / 10, 2)
+    }
+
+
+    return (
+        isLoading ? <SpinnerLoading /> :
+            <HorizontalCenterContainer>
+                {
+                    (homeworks.length !== 0) ? (
+                        <CardPoint>
+                            <TableContainer>
+                                <Table sx={{ width: 650 }}>
+                                    <HeadTable>
+                                        <TableRow>
+                                            <TableCell>
+                                                <HeadTableText>
+                                                    Homework
+                                                </HeadTableText>
+
+                                            </TableCell>
+                                            <TableCell>
+                                                <HeadTableText>
+                                                    Finalized
+                                                </HeadTableText>
+                                            </TableCell>
+                                            <TableCell>
+                                                <HeadTableText>
+                                                    Point
+                                                </HeadTableText>
+                                            </TableCell>
+                                        </TableRow>
+                                    </HeadTable>
+                                    <TableBody>
+                                        {homeworks.map((homework, index) => (
+                                            <TableRow
+                                                key={index}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
+                                                <TableCell component="th" scope="row">
+                                                    <NamePointHomeWork>
+                                                        {`${homework.title}  (${homework.point})`}
+                                                    </NamePointHomeWork>
+                                                </TableCell>
+                                                <TableCell >
+                                                    <NamePointHomeWork>
+                                                        {`${homework.isFinalized ? 'Yes' : 'No'}`}
+                                                    </NamePointHomeWork>
+                                                </TableCell>
+                                                <TableCell >
+                                                    <NamePointHomeWork>
+                                                        {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}
+                                                    </NamePointHomeWork>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
                                         <TableRow
-                                            key={index}
                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
                                             <TableCell component="th" scope="row">
                                                 <NamePointHomeWork>
-                                                    {homework.title}
+                                                    {`Total (${getTotalGrade()})`}
                                                 </NamePointHomeWork>
-
                                             </TableCell>
                                             <TableCell >
                                                 <NamePointHomeWork>
-                                                    áda
+                                                    -
                                                 </NamePointHomeWork>
-
+                                            </TableCell>
+                                            <TableCell >
+                                                <NamePointHomeWork>
+                                                    {`${getGPA()} (${getStudentTotalGrade()})`}
+                                                </NamePointHomeWork>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </CardPoint>
-                ) :
-                    (
-                        <NoHomeWorkCard>
-                            <NoHomeWorkText>
-                                Hiện bạn không có bài tập hoặc giáo viên chưa chấm điểm xong
-                            </NoHomeWorkText>
-                        </NoHomeWorkCard>
-                    )
-            }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </CardPoint>
+                    ) :
+                        (
+                            <NoHomeWorkCard>
+                                <NoHomeWorkText>
+                                    There is currently no homeworks.
+                                </NoHomeWorkText>
+                            </NoHomeWorkCard>
+                        )
+                }
 
-        </HorizontalCenterContainer>
+            </HorizontalCenterContainer>
     )
 }
 

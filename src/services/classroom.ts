@@ -53,8 +53,8 @@ export const removeGradeStructure = (classId: string, gradeStructureId: string) 
     return api.delete(`${BASE_URL}${classId}/grade-structure/${gradeStructureId}`)
 }
 
-export const addNewGradeStructureDetail = (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
-    return api.put(`${BASE_URL}${classId}/grade-structure/${gradeStructureId}`, { title, description, point })
+export const updateGradeStructureDetail = (classId: string, gradeStructureId: string, title: string, description: string, point: number, isFinalized?: boolean) => {
+    return api.put(`${BASE_URL}${classId}/grade-structure/${gradeStructureId}`, { title, description, point, isFinalized })
 }
 
 export const updateGradeStructure = (classId: string, gradeStructure: GradeStructure) => {
@@ -67,4 +67,24 @@ export const getClassroom = (classId: string) => {
 
 export const fetchClassroomRole = (classId: string) => {
     return api.get(`${BASE_URL}${classId}/role`)
+}
+
+export const appendStudentList = (classId: string, data: any) => {
+    return api.post(`${BASE_URL}${classId}/grade-board/append-list`, { data })
+}
+
+export const getGradeBoard = (classId: string) => {
+    return api.get(`${BASE_URL}${classId}/grade-board`)
+}
+
+export const getStudentGradeBoard = (classId: string, studentId: string) => {
+    return api.get(`${BASE_URL}${classId}/grade-board/${studentId}`)
+}
+
+export const updateGradeBoard = (classId: string, gradeDetailId: string, data: any) => {
+    return api.post(`${BASE_URL}${classId}/grade-board/${gradeDetailId}`, { data })
+}
+
+export const updateStudentPoint = (classId: string, gradeDetailId: string, data: { point: number, studentId: string }) => {
+    return api.patch(`${BASE_URL}${classId}/grade-board/${gradeDetailId}`, { data })
 }

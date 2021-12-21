@@ -313,9 +313,9 @@ const MainStream: FunctionComponent<MainStreamProps> = ({ classroom, gradeStruct
                         Grade Structure
                     </Title>
                     {gradeStructure ? gradeStructure.gradeStructuresDetails && (
-                        gradeStructure.gradeStructuresDetails.map((value) => {
+                        gradeStructure.gradeStructuresDetails.map((value, index) => {
                             return (
-                                <RowTitleGradeStructure>
+                                <RowTitleGradeStructure key={index}>
                                     <TitleHomeWork>{value.title}</TitleHomeWork>
                                     <PointHomeWork>{value.point}</PointHomeWork>
                                 </RowTitleGradeStructure>

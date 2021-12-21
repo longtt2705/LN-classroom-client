@@ -6,7 +6,7 @@ import {
     ResponderProvided
 } from "react-beautiful-dnd";
 import { useAppDispatch } from "../../app/hooks";
-import { addGradeStructure, removeGradeStructure, addNewGradeStructureDetail, updateGradeStructure } from '../../services/classroom';
+import { addGradeStructure, removeGradeStructure, updateGradeStructureDetail, updateGradeStructure } from '../../services/classroom';
 import { ERROR_MESSAGE } from "../../shared/messages";
 import { createAlert } from "../../slices/alert-slice";
 import { getClassroom, GradeStructure, GradeStructureDetail } from "../../slices/classroom-slice";
@@ -140,7 +140,7 @@ export const GradeStructurePage: FunctionComponent<GradeStructureProps> = ({ gra
 
     const handleEditGrade = async (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
         try {
-            await addNewGradeStructureDetail(classId, gradeStructureId, title, description, point)
+            await updateGradeStructureDetail(classId, gradeStructureId, title, description, point)
 
         } catch (err) {
             dispatch(createAlert({

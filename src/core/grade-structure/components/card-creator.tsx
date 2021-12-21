@@ -128,7 +128,7 @@ const CardCreator: FunctionComponent<CardCreatorProps> = ({ draggableProvided, i
                     label="Grade Description"
                     defaultValue={item.description}
                     variant={(item.title.length !== 0) ? "filled" : "outlined"}
-                    oncChange={handleOnChange(description)}
+                    onChange={handleOnChange(description)}
                 />
                 <InputGrade
                     disabled={!isEdit}

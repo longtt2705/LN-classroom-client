@@ -6,6 +6,7 @@ import isInt from "validator/lib/isInt"
 import isFloat from "validator/lib/isFloat"
 import { createMessageInRangeError, NOT_EMAIL_ERROR_MESSAGE, NOT_EMPTY_ERROR_MESSAGE, NOT_STRONG_PASSWORD_ERROR_MESSAGE, NO_MESSAGE, ONLY_DIGIT, POINT_STRONG_ERROR_MESSAGE, STUDENT_ID_WRONG } from "../shared/messages"
 import { useState } from "react"
+import { STUDENT_ID_LENGTH } from "../shared/styles"
 export default class InputFieldValidator {
     name: string;
     error: string;
@@ -168,7 +169,7 @@ export const notEmptyValidation = (stringToValidate: string) => {
 }
 
 export const studentIdValidation = (stringToValidate: string) => {
-    if (isInt(stringToValidate)) {
+    if (isInt(stringToValidate) && stringToValidate.length === STUDENT_ID_LENGTH) {
         return NO_MESSAGE
     }
     return STUDENT_ID_WRONG

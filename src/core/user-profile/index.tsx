@@ -210,6 +210,7 @@ const UserProfile: FunctionComponent = () => {
                         onChange={handleOnChangeProfile(studentId)}
                         onBlur={() => studentId.validate()}
                         value={studentId.value}
+                        disabled={user?.hasInputStudentId}
                     />
                     <Box mt={(theme) => theme.spacing(4)} />
 

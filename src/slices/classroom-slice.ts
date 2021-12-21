@@ -11,6 +11,7 @@ export interface GradeStructureDetail {
     title: string,
     description?: string,
     point: number,
+    isFinalized?: boolean
 }
 export interface GradeStructure {
     _id?: string,

@@ -1,11 +1,19 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import PersonIcon from '@mui/icons-material/Person';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { Avatar, Box, Button, Checkbox, Divider, IconButton, List, ListItem, ListItemButton, Typography } from "@mui/material";
+import { Avatar, Box, Button, Checkbox, CircularProgress, Divider, IconButton, List, ListItem, ListItemButton, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import React, { FunctionComponent, useState } from "react";
-import { Classroom, Role } from '../../../slices/classroom-slice';
-import PointModal from "./modal"
+import { round } from 'lodash';
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { useAppDispatch } from '../../../app/hooks';
+import { appendStudentList, getGradeBoard, updateGradeBoard, updateGradeStructureDetail } from '../../../services/classroom';
+import { ERROR_MESSAGE } from '../../../shared/messages';
+import { createAlert } from '../../../slices/alert-slice';
+import { Classroom, getClassroom, GradeStructureDetail, Role } from '../../../slices/classroom-slice';
+import { parseCSVData } from '../../../utils/csv';
+import { DownloadGradeBoardButton, DownloadGradeTemplateButton, DownloadStudentListTemplateButton } from '../../classroom-detail/components/csv-button';
+import SpinnerLoading from '../../components/spinner-loading';
+import PointModal from "./modal";
 
 const Root = styled('div')`
   table {
@@ -216,24 +224,26 @@ const DownloadText = styled(Typography)(({ theme }) => ({
 
 const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ classroom, role }) => {
     const [downloadClick, setDownloadClick] = useState(false)
-    const [isOpenModalPoint,setIsOpenModalPoint]=useState(false)
-    const [homeworkIndex,setHomeworkIndex]=useState(0)
-    const classId=classroom?._id||""
+    const [isOpenModalPoint, setIsOpenModalPoint] = useState<any>({})
+    const [homeworkIndex, setHomeworkIndex] = useState(0)
+    const classId = classroom?._id || ""
 
+    const [isLoading, setLoading] = useState(false)
+    const [isMarkLoading, setMarkLoading] = useState<any>({})
     const gradeStructure = (classroom && classroom.gradeStructure)
     const homeworks = gradeStructure?.gradeStructuresDetails || []
-
-    const students = classroom?.students || []
+    const dispatch = useAppDispatch()
+    const [students, setStudents] = useState<any[]>([])
 
     const handleDownloadClick = () => {
         setDownloadClick(!downloadClick)
     }
 
-    const handleOpenModalPoint=(homeworkInd:number)=>{
+    const handleOpenModalPoint = (homeworkInd: number, studentId: string) => {
         setHomeworkIndex(homeworkInd)
-        setIsOpenModalPoint(true)
+        setIsOpenModalPoint({ ...isOpenModalPoint, [studentId]: true })
     }
-    const handleCloseModalPoint=()=>setIsOpenModalPoint(false)
+    const handleCloseModalPoint = (studentId: string) => setIsOpenModalPoint({ ...isOpenModalPoint, [studentId]: false })
 
     const handleDownloadStudentClick = () => {
         setDownloadClick(!downloadClick)
@@ -247,162 +257,354 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
         setDownloadClick(!downloadClick)
     }
 
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true)
+            try {
+                const { data } = await getGradeBoard(classroom._id!)
+                setStudents(data)
+            } catch {
+                dispatch(createAlert({
+                    message: 'Error when trying to fetch grade board!',
+                    severity: 'error'
+                }))
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [dispatch, classroom._id])
+
+    const handleUploadStudentList = (event: any) => {
+        const uploadStudentList = async (fields: string[], data: string[]) => {
+            const indexStudentId = fields.indexOf('Student Id')
+            const indexFullName = fields.indexOf('Full Name')
+            if (indexFullName >= 0 && indexStudentId >= 0) {
+                const payload = data.map(datum => {
+                    return {
+                        studentId: datum[indexStudentId],
+                        fullName: datum[indexFullName],
+                        classId: classroom._id
+                    }
+                })
+                try {
+                    await appendStudentList(classroom._id!, payload)
+                    fetchStudents()
+                    dispatch(createAlert({
+                        message: 'Upload list student success!',
+                        severity: 'success'
+                    }))
+                } catch {
+                    dispatch(createAlert({
+                        message: 'Upload list student failed!',
+                        severity: 'error'
+                    }))
+                }
+            } else {
+                dispatch(createAlert({
+                    message: 'Your file format is wrong!',
+                    severity: 'error'
+                }))
+            }
+        }
+        parseCSVData(event.target.files[0], uploadStudentList)
+    }
+
+    const handleUploadGrade = (gradeDetailId: string) => (event: any) => {
+        const uploadGrade = async (fields: string[], data: string[]) => {
+            const indexStudentId = fields.indexOf('Student Id')
+            const indexGrade = fields.indexOf('Grade')
+            if (indexGrade >= 0 && indexStudentId >= 0) {
+                const payload = data.map(datum => {
+                    return {
+                        studentId: datum[indexStudentId],
+                        point: datum[indexGrade]
+                    }
+                })
+                try {
+                    await updateGradeBoard(classroom._id!, gradeDetailId, payload)
+                    fetchStudents()
+                    dispatch(createAlert({
+                        message: 'Upload grade success!',
+                        severity: 'success'
+                    }))
+                } catch {
+                    dispatch(createAlert({
+                        message: 'Upload grade failed!',
+                        severity: 'error'
+                    }))
+                }
+            } else {
+                dispatch(createAlert({
+                    message: 'Your file format is wrong!',
+                    severity: 'error'
+                }))
+            }
+        }
+        parseCSVData(event.target.files[0], uploadGrade)
+    }
+
+    const getStudentGrade = (student: any, homeworkId: string) => {
+        const result = student.grade.find((grade: any) => {
+            return grade.gradeStructureDetail === homeworkId
+        })
+        return result ? result.point : "0"
+    }
+
+    const getRealStudentGrade = (student: any, homework: GradeStructureDetail) => {
+        return round(parseFloat(getStudentGrade(student, homework._id!)) / 10 * homework.point, 2)
+    }
+
+    const getStudentTotalGrade = (student: any) => {
+        let total = 0
+        homeworks.forEach((homework) => {
+            total += getRealStudentGrade(student, homework)
+        })
+
+        return total
+    }
+
+    const getTotalGrade = () => {
+        return homeworks.reduce((total, currentValue) => {
+            return total + currentValue.point
+        }, 0)
+    }
+
+    const getGPA = (student: any) => {
+        return round(getStudentTotalGrade(student) * getTotalGrade() / 10)
+    }
+
+    const handleCheck = (homework: GradeStructureDetail) => async (event: React.ChangeEvent<HTMLInputElement>) => {
+        setMarkLoading({ ...isMarkLoading, [homework._id!]: true })
+        try {
+            await updateGradeStructureDetail(classId, homework._id!, homework.title, homework.description || "", homework.point, event.target.checked)
+            dispatch(getClassroom(classId))
+        } catch (err) {
+            dispatch(createAlert({
+                message: ERROR_MESSAGE,
+                severity: "error"
+            }))
+        } finally {
+            setMarkLoading({ ...isMarkLoading, [homework._id!]: false })
+        }
+    }
+
+    const fetchStudents = async () => {
+        try {
+            setLoading(true)
+            const { data } = await getGradeBoard(classroom._id!)
+            setStudents(data)
+        } catch {
+            // ignore
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const prepareDataForDownloadCsv = () => {
+        const homeworksName = homeworks.map((homework) => homework.title)
+        const data = [['Student Id', 'Full Name', ...homeworksName, 'Final']]
+        students.forEach((student) => {
+            const homeworkGrade = homeworks.map((homework) => getStudentGrade(student, homework._id!))
+            const gpa = getGPA(student)
+            data.push([student.studentId, student.fullName, ...homeworkGrade, gpa])
+
+        })
+        return data
+    }
 
     return (
-        <Root>
-            <ButtonBox>
-                <BoxImportButton>
-                    <UpDownImpButton
-                        variant="outlined"
-                        onClick={handleDownloadClick}
-                        disabled={(students.length === 0 || homeworks.length === 0) ? true : false}
-                    >
-                        Download
-                        <ArrowDropDownIcon />
-                    </UpDownImpButton>
-                    <UpDownImpButton
-                        variant="contained"
-                        color="primary"
-                        disabled={(role === "owner") ? false : true}
-                    >
-                        Upload
-                    </UpDownImpButton>
-                </BoxImportButton>
-            </ButtonBox>
-            {
-                (downloadClick) && (
-                    <DownLoadDropCard
-                        sx={{ boxShadow: 5 }}
-                    >
-                        <DownLoadList>
-                            <DownLoadListItem>
-                                <DownLoadListItemButton
-                                    onClick={handleDownloadStudentClick}
-                                >
-                                    <DownloadText>Download Students List Template</DownloadText>
-                                </DownLoadListItemButton>
-                            </DownLoadListItem>
-                            <DownLoadListItem>
-                                <DownLoadListItemButton
-                                    onClick={handleDownloadGradeTemplateClick}
-                                >
-                                    <DownloadText>Download Student Grade Template</DownloadText>
-                                </DownLoadListItemButton>
-                            </DownLoadListItem>
-                            <DownLoadListItem>
-                                <DownLoadListItemButton
-                                    onClick={handleDownloadGradeClick}
-                                >
-                                    <DownloadText>Download GradeBoard</DownloadText>
-                                </DownLoadListItemButton>
-                            </DownLoadListItem>
-                        </DownLoadList>
-                    </DownLoadDropCard>
-                )
-            }
-            {
-                (homeworks.length !== 0) ? (
-                    (students.length !== 0) ? (
-                        <table style={{ minWidth: "650" }}>
-                            <thead>
-                                <tr>
-                                    <th style={{ width: "400px" }} colSpan={2}>
-                                        <BoxSort>
-                                            Sort
-                                        </BoxSort>
-                                    </th>
-                                    {(homeworks.map((homework, inx) => (
-                                        <th style={{ minWidth: "180px" }} key={inx}>
+        isLoading ? <SpinnerLoading /> :
+            <Root>
+                <ButtonBox>
+                    <BoxImportButton>
+                        <UpDownImpButton
+                            variant="outlined"
+                            onClick={handleDownloadClick}
+                            disabled={(students.length === 0 || homeworks.length === 0) ? true : false}
+                        >
+                            Download
+                            <ArrowDropDownIcon />
+                        </UpDownImpButton>
+                        <UpDownImpButton
+                            variant="contained"
+                            component="label"
+                            disabled={role !== 'owner'}
+                        >
+                            Upload
+                            <input
+                                onChange={handleUploadStudentList}
+                                onClick={(event: any) => {
+                                    event.target.value = null
+                                }}
+                                type="file"
+                                accept="text/csv"
+                                hidden
+                            />
+                        </UpDownImpButton>
+                    </BoxImportButton>
+                </ButtonBox>
+                {
+                    (downloadClick) && (
+                        <DownLoadDropCard
+                            sx={{ boxShadow: 5 }}
+                        >
+                            <DownLoadList>
+                                <DownLoadListItem>
+                                    <DownLoadListItemButton
+                                        onClick={handleDownloadStudentClick}
+                                    >
+                                        <DownloadStudentListTemplateButton>
+                                            <DownloadText>Download Students List Template</DownloadText>
+                                        </DownloadStudentListTemplateButton>
+                                    </DownLoadListItemButton>
+                                </DownLoadListItem>
+                                <DownLoadListItem>
+                                    <DownLoadListItemButton
+                                        onClick={handleDownloadGradeTemplateClick}
+                                    >
+                                        <DownloadGradeTemplateButton >
+                                            <DownloadText>Download Student Grade Template</DownloadText>
+                                        </DownloadGradeTemplateButton>
+                                    </DownLoadListItemButton>
+                                </DownLoadListItem>
+                                <DownLoadListItem>
+                                    <DownLoadListItemButton
+                                        onClick={handleDownloadGradeClick}
+                                    >
+                                        <DownloadGradeBoardButton data={prepareDataForDownloadCsv()} >
+                                            <DownloadText>Download Grade Board</DownloadText>
+                                        </DownloadGradeBoardButton>
+                                    </DownLoadListItemButton>
+                                </DownLoadListItem>
+                            </DownLoadList>
+                        </DownLoadDropCard>
+                    )
+                }
+                {
+                    (homeworks.length !== 0) ? (
+                        (students.length !== 0) ? (
+                            <table style={{ minWidth: "650" }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: "400px" }} colSpan={2}>
+                                            <BoxSort>
+                                                Grade Board
+                                            </BoxSort>
+                                        </th>
+                                        {(homeworks.map((homework, inx) => (
+                                            <th style={{ minWidth: "120px" }} key={inx}>
+                                                <GradeBox>
+                                                    <GradeName>{homework.title}</GradeName>
+                                                    <LineGrade />
+                                                    <TimeGrade>out of 10 ({homework.point})</TimeGrade>
+                                                    <BoxFinal>
+                                                        <MarkText>Mark Final</MarkText>
+                                                        {
+                                                            isMarkLoading[homework._id!] ? <CircularProgress /> :
+                                                                <Checkbox color="success"
+                                                                    checked={homework.isFinalized}
+                                                                    onChange={handleCheck(homework)}
+                                                                />
+                                                        }
+                                                        <input
+                                                            onChange={handleUploadGrade(homework._id!)}
+                                                            onClick={(event: any) => {
+                                                                event.target.value = null
+                                                            }}
+                                                            type="file"
+                                                            accept="text/csv"
+                                                            style={{ display: "none" }}
+                                                            id={`contained-button-file-${inx}`}
+                                                        />
+                                                        <label htmlFor={`contained-button-file-${inx}`}>
+                                                            <IconButton component="span">
+                                                                <UploadFileIcon />
+                                                            </IconButton>
+                                                        </label>
+                                                    </BoxFinal>
+                                                </GradeBox>
+                                            </th>
+                                        )))}
+
+                                        <th style={{ minWidth: "120px" }}>
                                             <GradeBox>
-                                                <GradeName>{homework.title}</GradeName>
+                                                <GradeNameFinal>Final</GradeNameFinal>
                                                 <LineGrade />
-                                                <TimeGrade>out of 10</TimeGrade>
-                                                <BoxFinal>
-                                                    <MarkText>Mark Final</MarkText>
-                                                    <Checkbox color="success" />
-                                                    <IconButton>
-                                                        <UploadFileIcon />
-                                                    </IconButton>
-                                                </BoxFinal>
+                                                <TimeGrade>out of 10 ({getTotalGrade()})</TimeGrade>
                                             </GradeBox>
                                         </th>
-                                    )))}
-                                    <th style={{ minWidth: "120px" }}>
-                                        <GradeBox>
-                                            <GradeNameFinal>Final</GradeNameFinal>
-                                        </GradeBox>
-                                    </th>
 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    (students.map((student, inx) => (
-                                        <tr key={inx}>
-                                            <td style={{ minWidth: "100px" }}>
-                                                <StudentIdItem>
-                                                    <BoxInfor>
-                                                        <StudentName>{student.studentId}</StudentName>
-                                                    </BoxInfor>
-                                                </StudentIdItem>
-                                            </td>
-                                            <td style={{ minWidth: "300px" }}>
-                                                <StudentItem>
-                                                    <BoxInfor>
-                                                        <PersonAvatar>
-                                                            <PersonIcon />
-                                                        </PersonAvatar>
-                                                        <StudentName>{student.lastName} {student.firstName}</StudentName>
-                                                    </BoxInfor>
-                                                </StudentItem>
-                                            </td>
-                                            {(homeworks.map((homework, inx) => (
-                                                <td key={inx}>
-                                                    <ListItemButton
-                                                    onClick={()=>handleOpenModalPoint(inx)}
-                                                    >
-                                                        <PointText>point</PointText>
-                                                    </ListItemButton>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        (students.map((student, inx) => (
+                                            <tr key={inx}>
+                                                <td style={{ minWidth: "100px" }}>
+                                                    <StudentIdItem>
+                                                        <BoxInfor>
+                                                            <StudentName>{student.studentId}</StudentName>
+                                                        </BoxInfor>
+                                                    </StudentIdItem>
                                                 </td>
-                                            )))}
-                                            <td>
-                                                <PointText>point</PointText>
-                                            </td>
-                                            <PointModal isOpen={isOpenModalPoint} onClose={handleCloseModalPoint} homework={homeworks[homeworkIndex]} student={student} classId={classId}/>
-                                        </tr>
-                                    )))
-                                    
-                                }
-                            </tbody>
-                        </table>
-                        
-                    ) :
-                        (
+                                                <td style={{ minWidth: "300px" }}>
+                                                    <StudentItem>
+                                                        <BoxInfor>
+                                                            <PersonAvatar>
+                                                                <PersonIcon />
+                                                            </PersonAvatar>
+                                                            <StudentName>{student.fullName}</StudentName>
+                                                        </BoxInfor>
+                                                    </StudentItem>
+                                                </td>
+                                                {(homeworks.map((homework, inx) => (
+                                                    <td key={inx}>
+                                                        <ListItemButton
+                                                            onClick={() => handleOpenModalPoint(inx, student.studentId)}
+                                                        >
+                                                            <PointText>
+                                                                {
+                                                                    `${getStudentGrade(student, homework._id!)} (${getRealStudentGrade(student, homework)})`
+                                                                }
+                                                            </PointText>
+                                                        </ListItemButton>
+                                                    </td>
+                                                )))}
+                                                <td>
+                                                    <PointText>{`${getGPA(student)} (${getStudentTotalGrade(student)})`}</PointText>
+                                                </td>
+                                                <PointModal fetchStudents={fetchStudents} isOpen={isOpenModalPoint[student.studentId]} onClose={handleCloseModalPoint} homework={homeworks[homeworkIndex]} student={student} classId={classId} />
+                                            </tr>
+                                        )))
+
+                                    }
+                                </tbody>
+                            </table>
+                        ) : (
                             <HorizontalCenterContainer >
                                 <NoHomeWorkCard>
                                     <NoHomeWorkText>
-                                        There is not student.Let add your students
+                                        There is no student yet. Please upload csv file.
                                     </NoHomeWorkText>
                                 </NoHomeWorkCard>
 
                             </HorizontalCenterContainer>
                         )
+                    ) :
+                        (
+                            <HorizontalCenterContainer >
+                                <NoHomeWorkCard>
+                                    <NoHomeWorkText>
+                                        There is no homeworks. Let add exams for your class
+                                    </NoHomeWorkText>
+                                </NoHomeWorkCard>
+                            </HorizontalCenterContainer>
 
-                ) :
-                    (
-                        <HorizontalCenterContainer >
-                            <NoHomeWorkCard>
-                                <NoHomeWorkText>
-                                    There is not homework. Let add exam for your class
-                                </NoHomeWorkText>
-                            </NoHomeWorkCard>
+                        )
+                }
 
-                        </HorizontalCenterContainer>
-
-                    )
-            }
-
-        </Root >
+            </Root >
     )
 }
 

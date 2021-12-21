@@ -108,17 +108,17 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
             total += getRealStudentGrade(homework)
         })
 
-        return total
+        return round(total, 2)
     }
 
     const getTotalGrade = () => {
-        return homeworks.reduce((total, currentValue) => {
+        return round(homeworks.reduce((total, currentValue) => {
             return total + currentValue.point
-        }, 0)
+        }, 0), 2)
     }
 
     const getGPA = () => {
-        return round(getStudentTotalGrade() * getTotalGrade() / 10, 2)
+        return round(getStudentTotalGrade() * 10 / getTotalGrade(), 2)
     }
 
 

@@ -16,6 +16,7 @@ import LoadingScreen from './core/components/loading-screen';
 import Invitation from './core/invitation';
 import { getAllClassroom } from './slices/classroom-slice';
 import UserProfile from './core/user-profile';
+import UserProfileMapping from './core/user-profile/components/user-profile-mapping';
 
 const PRE_URL = 'preUrl'
 
@@ -69,6 +70,7 @@ const App = () => {
                         <Route path={"/classrooms/:id"} component={ClassroomDetail} />
                         <Route exact path={"/invite/:token"} component={Invitation} />
                         <Route exact path={"/profile"} component={UserProfile} />
+                        <Route exact path={"/users/students/:studentId"} component={UserProfileMapping} />
                         <Route path={"*"} component={PageNotFound} />
                     </Layout>)
             }

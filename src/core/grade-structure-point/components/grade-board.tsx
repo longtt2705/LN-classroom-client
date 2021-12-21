@@ -13,6 +13,7 @@ import { Classroom, getClassroom, GradeStructureDetail, Role } from '../../../sl
 import { parseCSVData } from '../../../utils/csv';
 import { DownloadGradeBoardButton, DownloadGradeTemplateButton, DownloadStudentListTemplateButton } from '../../classroom-detail/components/csv-button';
 import SpinnerLoading from '../../components/spinner-loading';
+import { useHistory } from 'react-router-dom';
 import PointModal from "./modal";
 
 const Root = styled('div')`
@@ -227,13 +228,14 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
     const [isOpenModalPoint, setIsOpenModalPoint] = useState<any>({})
     const [homeworkIndex, setHomeworkIndex] = useState(0)
     const classId = classroom?._id || ""
-
     const [isLoading, setLoading] = useState(false)
     const [isMarkLoading, setMarkLoading] = useState<any>({})
     const gradeStructure = (classroom && classroom.gradeStructure)
     const homeworks = gradeStructure?.gradeStructuresDetails || []
     const dispatch = useAppDispatch()
     const [students, setStudents] = useState<any[]>([])
+    const history = useHistory()
+
 
     const handleDownloadClick = () => {
         setDownloadClick(!downloadClick)
@@ -274,6 +276,10 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
         }
         fetchData()
     }, [dispatch, classroom._id])
+
+    const handleStudentProfileClick = (studentId: string) => {
+        history.push(`/users/students/${studentId}`)
+    }
 
     const handleUploadStudentList = (event: any) => {
         const uploadStudentList = async (fields: string[], data: string[]) => {
@@ -361,17 +367,17 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
             total += getRealStudentGrade(student, homework)
         })
 
-        return total
+        return round(total, 2)
     }
 
     const getTotalGrade = () => {
-        return homeworks.reduce((total, currentValue) => {
+        return round(homeworks.reduce((total, currentValue) => {
             return total + currentValue.point
-        }, 0)
+        }, 0), 2)
     }
 
     const getGPA = (student: any) => {
-        return round(getStudentTotalGrade(student) * getTotalGrade() / 10)
+        return round(getStudentTotalGrade(student) * 10 / getTotalGrade(), 2)
     }
 
     const handleCheck = (homework: GradeStructureDetail) => async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -421,7 +427,6 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                         <UpDownImpButton
                             variant="outlined"
                             onClick={handleDownloadClick}
-                            disabled={(students.length === 0 || homeworks.length === 0) ? true : false}
                         >
                             Download
                             <ArrowDropDownIcon />
@@ -535,21 +540,25 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                                             </GradeBox>
                                         </th>
 
-                                    </tr>
-                                </thead>
+                                    </tr >
+                                </thead >
                                 <tbody>
                                     {
                                         (students.map((student, inx) => (
                                             <tr key={inx}>
                                                 <td style={{ minWidth: "100px" }}>
-                                                    <StudentIdItem>
+                                                    <StudentIdItem
+                                                    onClick={()=>handleStudentProfileClick(student.studentId)}
+                                                    >
                                                         <BoxInfor>
                                                             <StudentName>{student.studentId}</StudentName>
                                                         </BoxInfor>
                                                     </StudentIdItem>
                                                 </td>
                                                 <td style={{ minWidth: "300px" }}>
-                                                    <StudentItem>
+                                                    <StudentItem
+                                                    onClick={()=>handleStudentProfileClick(student.studentId)}
+                                                    >
                                                         <BoxInfor>
                                                             <PersonAvatar>
                                                                 <PersonIcon />
@@ -580,7 +589,7 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
 
                                     }
                                 </tbody>
-                            </table>
+                            </table >
                         ) : (
                             <HorizontalCenterContainer >
                                 <NoHomeWorkCard>

@@ -18,3 +18,7 @@ export const changePassword = (payload: { oldPassword: string, newPassword: stri
 export const getUserDataById = (id: string) => {
     return api.get(BASE_URL + `${id}`)
 }
+
+export const getUserDataByStudentId = (studentId: string) => {
+    return api.get(BASE_URL + `students/${studentId}`)
+}

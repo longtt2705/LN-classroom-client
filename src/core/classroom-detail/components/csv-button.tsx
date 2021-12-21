@@ -4,7 +4,7 @@ import { CSVLink } from "react-csv";
 
 export const DownloadStudentListTemplateButton: FunctionComponent<{ children: any }> = ({ children }) => {
     const csvData = [
-        ["Student Id", "Full name"],
+        ["Student Id", "Full Name"],
     ];
 
     return (<CSVLink data={csvData} filename="student-list-template.csv" target="_blank" >{children}</CSVLink>);

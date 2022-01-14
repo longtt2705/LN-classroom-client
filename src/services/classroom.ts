@@ -26,7 +26,7 @@ export const sendInviteLink = (payload: {
     classroomName: string,
     email: string
 }) => {
-    return api.post(BASE_URL + "send-invitation", pick(payload, 'isStudent', 'classroomName', 'email'))
+    return api.post(`${BASE_URL}${payload.classId}/send-invitation`, pick(payload, 'isStudent', 'classroomName', 'email'))
 }
 
 export const resetClassCode = (classId: string | undefined) => {

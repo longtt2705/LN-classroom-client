@@ -23,7 +23,6 @@ import GoogleLogin from 'react-google-login';
 import { noop } from 'lodash';
 import { createAlert } from '../../slices/alert-slice';
 
-
 const theme = createTheme();
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -108,7 +107,7 @@ export default function SignIn() {
                                 autoComplete="current-password"
                             />
                             <Typography sx={{ mb: 2, mt: 2 }}>
-                                <Link to="/">
+                                <Link to="/forgotpassword">
                                     Forgot password?
                                 </Link>
                             </Typography>

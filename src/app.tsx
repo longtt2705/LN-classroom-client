@@ -17,6 +17,8 @@ import Invitation from './core/invitation';
 import { getAllClassroom } from './slices/classroom-slice';
 import UserProfile from './core/user-profile';
 import UserProfileMapping from './core/user-profile/components/user-profile-mapping';
+import ForgotPassword from "./core/forgot-password"
+
 
 const PRE_URL = 'preUrl'
 
@@ -50,6 +52,7 @@ const App = () => {
                     (<Switch>
                         <Route exact path={"/login"} component={LoginPage} />
                         <Route exact path={"/register"} component={RegisterPage} />
+                        <Route exact path={"/forgotpassword"} component={ForgotPassword} />
                         <Route path={"*"} render={() => {
                             if (location.pathname !== '/')
                                 localStorage.setItem(PRE_URL, location.pathname)

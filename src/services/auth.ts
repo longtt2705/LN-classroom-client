@@ -24,3 +24,7 @@ export const registerUser = (user: User) => {
 export const logout = () => {
     return api.post(BASE_URL + "logout")
 }
+
+export const forgotpassword=()=>{
+    return api.get("/forgotpassword")
+}

@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from "@mui/material";
+import { Box, Card, IconButton, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -13,6 +13,7 @@ import { getStudentGradeBoard } from "../../../services/classroom";
 import { createAlert } from "../../../slices/alert-slice";
 import { Classroom, GradeStructureDetail } from "../../../slices/classroom-slice";
 import SpinnerLoading from "../../components/spinner-loading";
+import FlagIcon from '@mui/icons-material/Flag';
 
 
 const HorizontalCenterContainer = styled(Box)(({
@@ -59,6 +60,18 @@ const NoHomeWorkText = styled(Typography)(({ theme }) => ({
     fontSize: theme.fontSizes.sizeLabel,
     color: theme.colors.texting.sideBarLabel,
     fontWeight: "bold",
+}))
+
+const PointAndReview = styled(Box)(({ theme }) => ({
+    widht: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+}))
+
+const ReviewButton=styled(IconButton)(({ theme }) =>({
+    marginLeft:theme.spacing(5)
 }))
 
 const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
@@ -121,7 +134,6 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
         return round(getStudentTotalGrade() * 10 / getTotalGrade(), 2)
     }
 
-
     return (
         isLoading ? <SpinnerLoading /> :
             <HorizontalCenterContainer>
@@ -167,9 +179,15 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
                                                     </NamePointHomeWork>
                                                 </TableCell>
                                                 <TableCell >
-                                                    <NamePointHomeWork>
-                                                        {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}
-                                                    </NamePointHomeWork>
+                                                    <PointAndReview>
+                                                        <NamePointHomeWork>
+                                                            {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}
+                                                        </NamePointHomeWork>
+                                                        <ReviewButton>
+                                                            <FlagIcon />
+                                                        </ReviewButton>
+                                                    </PointAndReview>
+
                                                 </TableCell>
                                             </TableRow>
                                         ))}

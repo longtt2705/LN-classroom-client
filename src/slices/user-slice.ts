@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import * as userApi from '../services/user';
 import * as authApi from '../services/auth';
 import { ERROR_MESSAGE, LOGIN_FAILED } from "../shared/messages";
 import { createAlert } from "./alert-slice";
+import { USER_ROLE, USER_STATUS } from "../shared/constant";
+import { STATUS_CODES } from "http";
 
 export interface User {
     _id?: string,
@@ -12,10 +14,11 @@ export interface User {
     lastName: string,
     username: string,
     password?: string,
-    isActive?: boolean,
     provider?: string,
     studentId?: string,
-    hasInputStudentId?: boolean
+    hasInputStudentId?: boolean,
+    status?: USER_STATUS,
+    role?: USER_ROLE;
 };
 
 interface InitialState {
@@ -40,7 +43,6 @@ export const registerUser = createAsyncThunk(
                 lastName: info.lastName,
                 email: info.email,
                 password: info.password,
-                isActive: false,
                 username: info.username
             })
             thunkApi.dispatch(createAlert({
@@ -178,8 +180,13 @@ const userSlice = createSlice({
             state.isLoading = false
 
         });
-        builder.addCase(checkAuthentication.rejected, (state) => {
+        builder.addCase(checkAuthentication.rejected, (state, action) => {
             state.isLoading = false
+            const statusCode = (action.payload as AxiosError).response?.status
+            if (statusCode === STATUS_CODES.FORBIDDEN) {
+                state.user = action.payload as User
+                state.isAuthenticated = true
+            }
         });
         builder.addCase(updateProfile.fulfilled, (state, action) => {
             state.user = action.payload

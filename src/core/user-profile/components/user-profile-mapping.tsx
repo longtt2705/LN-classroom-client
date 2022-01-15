@@ -66,13 +66,13 @@ const UserProfileMapping: FunctionComponent = () => {
             try {
                 const result = await getUserDataByStudentId(studentId)
                 setStudentInfor(result.data);
-            } 
+            }
             catch (err) {
                 dispatch(createAlert({
                     message: "Error when trying to fetch information student",
                     severity: "error"
                 }))
-            } 
+            }
             finally {
                 setLoading(false)
             }
@@ -86,51 +86,68 @@ const UserProfileMapping: FunctionComponent = () => {
             <SpinnerLoading />
         ) : (
             studentInfor ?
-            (<HorizontalCenterContainer>
-                <Box
-                    component="main"
-                    sx={{ m: 1, width: "30%" }}
-                >
-                    <ColumnBox>
-                        <AvatarProfile>
-                            <IconAvatar></IconAvatar>
-                        </AvatarProfile>
-                        <ChangeAvatarButton variant="outlined">Change Avatar</ChangeAvatarButton>
-                        <RowBox>
+                (<HorizontalCenterContainer>
+                    <Box
+                        component="main"
+                        sx={{ m: 1, width: "30%" }}
+                    >
+                        <ColumnBox>
+                            <AvatarProfile>
+                                <IconAvatar></IconAvatar>
+                            </AvatarProfile>
+                            <ChangeAvatarButton variant="outlined">Change Avatar</ChangeAvatarButton>
+                            <RowBox>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    label="First name"
+                                    value={studentInfor.firstName}
+                                    disabled={true}
+                                    sx={{ mr: 1 }}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    label="Last name"
+                                    value={studentInfor.lastName}
+                                    disabled={true}
+                                    sx={{ ml: 1 }}
+                                />
+                            </RowBox>
+                            <Box mt={(theme) => theme.spacing(4)} />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                label="First name"
-                                value={studentInfor.firstName}
+                                label="Email"
+                                value={studentInfor.email}
                                 disabled={true}
-                                sx={{ mr: 1 }}
                             />
+                            <Box mt={(theme) => theme.spacing(4)} />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
-                                label="Last name"
-                                value={studentInfor.lastName}
+                                label="Username"
+                                value={studentInfor.username}
                                 disabled={true}
-                                sx={{ ml: 1 }}
                             />
-                        </RowBox>
-                        <Box mt={(theme) => theme.spacing(4)} />
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            label="Student Id"
-                            value={studentInfor.studentId}
-                            disabled={true}
-                        />
-                        <Box mt={(theme) => theme.spacing(4)} />
-
-                    </ColumnBox>
-                </Box>
-            </HorizontalCenterContainer >
-            ) : <Typography>This student Id has not been registered</Typography>
+                            <Box mt={(theme) => theme.spacing(4)} />
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                label="Student Id"
+                                value={studentInfor.studentId}
+                                disabled={true}
+                            />
+                            <Box mt={(theme) => theme.spacing(4)} />
+                        </ColumnBox>
+                    </Box>
+                </HorizontalCenterContainer >
+                ) : <Typography>This student Id has not been registered</Typography>
         )
 
 

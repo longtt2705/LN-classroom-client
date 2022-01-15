@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { getStudentGradeBoard } from "../../../services/classroom";
 import { createAlert } from "../../../slices/alert-slice";
 import { Classroom, GradeStructureDetail } from "../../../slices/classroom-slice";
+import { CenterContainer } from "../../components/container";
 import SpinnerLoading from "../../components/spinner-loading";
 import FlagIcon from '@mui/icons-material/Flag';
 
@@ -70,8 +71,8 @@ const PointAndReview = styled(Box)(({ theme }) => ({
     alignItems: "center",
 }))
 
-const ReviewButton=styled(IconButton)(({ theme }) =>({
-    marginLeft:theme.spacing(5)
+const ReviewButton = styled(IconButton)(({ theme }) => ({
+    marginLeft: theme.spacing(5)
 }))
 
 const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }) => {
@@ -136,95 +137,103 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
 
     return (
         isLoading ? <SpinnerLoading /> :
-            <HorizontalCenterContainer>
-                {
-                    (homeworks.length !== 0) ? (
-                        <CardPoint>
-                            <TableContainer>
-                                <Table sx={{ width: 650 }}>
-                                    <HeadTable>
-                                        <TableRow>
-                                            <TableCell>
-                                                <HeadTableText>
-                                                    Homework
-                                                </HeadTableText>
+            student ?
+                (
+                    <HorizontalCenterContainer>
+                        {
+                            (homeworks.length !== 0) ? (
+                                <CardPoint>
+                                    <TableContainer>
+                                        <Table sx={{ width: 650 }}>
+                                            <HeadTable>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <HeadTableText>
+                                                            Homework
+                                                        </HeadTableText>
 
-                                            </TableCell>
-                                            <TableCell>
-                                                <HeadTableText>
-                                                    Finalized
-                                                </HeadTableText>
-                                            </TableCell>
-                                            <TableCell>
-                                                <HeadTableText>
-                                                    Point
-                                                </HeadTableText>
-                                            </TableCell>
-                                        </TableRow>
-                                    </HeadTable>
-                                    <TableBody>
-                                        {homeworks.map((homework, index) => (
-                                            <TableRow
-                                                key={index}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell component="th" scope="row">
-                                                    <NamePointHomeWork>
-                                                        {`${homework.title}  (${homework.point})`}
-                                                    </NamePointHomeWork>
-                                                </TableCell>
-                                                <TableCell >
-                                                    <NamePointHomeWork>
-                                                        {`${homework.isFinalized ? 'Yes' : 'No'}`}
-                                                    </NamePointHomeWork>
-                                                </TableCell>
-                                                <TableCell >
-                                                    <PointAndReview>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <HeadTableText>
+                                                            Finalized
+                                                        </HeadTableText>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <HeadTableText>
+                                                            Point
+                                                        </HeadTableText>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </HeadTable>
+                                            <TableBody>
+                                                {homeworks.map((homework, index) => (
+                                                    <TableRow
+                                                        key={index}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                        <TableCell component="th" scope="row">
+                                                            <NamePointHomeWork>
+                                                                {`${homework.title}  (${homework.point})`}
+                                                            </NamePointHomeWork>
+                                                        </TableCell>
+                                                        <TableCell >
+                                                            <NamePointHomeWork>
+                                                                {`${homework.isFinalized ? 'Yes' : 'No'}`}
+                                                            </NamePointHomeWork>
+                                                        </TableCell>
+                                                        <TableCell >
+                                                            <PointAndReview>
+                                                                <NamePointHomeWork>
+                                                                    {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}
+                                                                </NamePointHomeWork>
+                                                                <ReviewButton>
+                                                                    <FlagIcon />
+                                                                </ReviewButton>
+                                                            </PointAndReview>
+
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                                <TableRow
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell component="th" scope="row">
                                                         <NamePointHomeWork>
-                                                            {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}
+                                                            {`Total (${getTotalGrade()})`}
                                                         </NamePointHomeWork>
-                                                        <ReviewButton>
-                                                            <FlagIcon />
-                                                        </ReviewButton>
-                                                    </PointAndReview>
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        <NamePointHomeWork>
+                                                            -
+                                                        </NamePointHomeWork>
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        <NamePointHomeWork>
+                                                            {`${getGPA()} (${getStudentTotalGrade()})`}
+                                                        </NamePointHomeWork>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </CardPoint>
+                            ) :
+                                (
+                                    <NoHomeWorkCard>
+                                        <NoHomeWorkText>
+                                            There is currently no homeworks.
+                                        </NoHomeWorkText>
+                                    </NoHomeWorkCard>
+                                )
+                        }
 
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                        <TableRow
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
-                                            <TableCell component="th" scope="row">
-                                                <NamePointHomeWork>
-                                                    {`Total (${getTotalGrade()})`}
-                                                </NamePointHomeWork>
-                                            </TableCell>
-                                            <TableCell >
-                                                <NamePointHomeWork>
-                                                    -
-                                                </NamePointHomeWork>
-                                            </TableCell>
-                                            <TableCell >
-                                                <NamePointHomeWork>
-                                                    {`${getGPA()} (${getStudentTotalGrade()})`}
-                                                </NamePointHomeWork>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </CardPoint>
-                    ) :
-                        (
-                            <NoHomeWorkCard>
-                                <NoHomeWorkText>
-                                    There is currently no homeworks.
-                                </NoHomeWorkText>
-                            </NoHomeWorkCard>
-                        )
-                }
-
-            </HorizontalCenterContainer>
+                    </HorizontalCenterContainer>) : (
+                    <CenterContainer>
+                        <Typography variant="h6">
+                            Your student ID doesnt match any in this class.
+                        </Typography>
+                    </CenterContainer>
+                )
     )
 }
 

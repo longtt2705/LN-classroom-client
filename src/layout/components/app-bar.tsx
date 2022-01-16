@@ -2,9 +2,10 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SearchIcon from '@mui/icons-material/Search';
-import { Card, Divider, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Badge, Card, Divider, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -18,6 +19,7 @@ import * as React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import { logout } from '../../services/auth';
+import { USER_STATUS } from '../../shared/constant';
 import { setCreateClassModalOpen } from '../../slices/create-class-modal-sclice';
 import { setJoinClassModalOpen } from '../../slices/join-class-modal-slice';
 
@@ -61,9 +63,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const AccountCard = styled(Card)(({ theme }) => ({
   width: theme.spacing(50),
-  position: "absolute",
-  marginTop: theme.spacing(12),
-  marginLeft: theme.spacing(-30),
+  position: "fixed",
+  top: theme.spacing(15),
+  right: theme.spacing(1),
 }))
 
 const AccountList = styled(List)(({ theme }) => ({
@@ -87,7 +89,7 @@ const Line = styled(Divider)(({ theme }) => ({
   marginBottom: theme.spacing(3)
 }))
 
-export default function PrimarySearchAppBar() {
+const PrimarySearchAppBar: React.FunctionComponent<{ status: USER_STATUS | undefined }> = ({ status }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const [isAccountButton, setIsAccountButton] = React.useState(false)
@@ -204,19 +206,25 @@ export default function PrimarySearchAppBar() {
             </Grid>
           </Box>
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-
-            <IconButton size="large" color="inherit" onClick={handleProfileMenuOpen}>
-              <AddIcon />
-            </IconButton>
-            {/* <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton> */}
+            {
+              status === USER_STATUS.ACTIVATED &&
+              (
+                <>
+                  <IconButton
+                    size="large"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                  >
+                    <Badge badgeContent={17} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                  <IconButton size="large" color="inherit" onClick={handleProfileMenuOpen}>
+                    <AddIcon />
+                  </IconButton>
+                </>
+              )
+            }
             <IconButton
               ref={ref}
               size="large"
@@ -265,3 +273,5 @@ export default function PrimarySearchAppBar() {
     </Box>
   );
 }
+
+export default PrimarySearchAppBar;

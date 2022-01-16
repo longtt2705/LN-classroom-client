@@ -190,6 +190,12 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
                                                                 <NamePointHomeWork>
                                                                     {`${homework.isFinalized ? 'Yes' : 'No'}`}
                                                                 </NamePointHomeWork>
+                                                            </PointAndReview>
+                                                        </TableCell>
+                                                        <TableCell >
+                                                            <PointAndReview>
+                                                                <NamePointHomeWork>
+                                                                    {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}                                                        </NamePointHomeWork>
                                                                 {
                                                                     homework.isFinalized && (
                                                                         <ReviewButton onClick={handleOpen}>
@@ -197,15 +203,6 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
                                                                         </ReviewButton>
                                                                     )
                                                                 }
-                                                            </PointAndReview>
-                                                        </TableCell>
-                                                        <TableCell >
-                                                            <PointAndReview>
-                                                                <NamePointHomeWork>
-                                                                    {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}                                                        </NamePointHomeWork>
-                                                                <ReviewButton>
-                                                                    <FlagIcon />
-                                                                </ReviewButton>
                                                             </PointAndReview>
 
                                                         </TableCell>

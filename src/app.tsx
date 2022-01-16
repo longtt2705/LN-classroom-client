@@ -19,6 +19,10 @@ import Layout from './layout';
 import { USER_STATUS } from './shared/constant';
 import { getAllClassroom } from './slices/classroom-slice';
 import { checkAuthentication } from './slices/user-slice';
+import BannedPage from './core/components/banned';
+import SendEmail from './core/forgot-password/sendEmail';
+import ActivateAccount from './core/activate-account';
+import ResetPassword from './core/reset-password';
 
 const PRE_URL = 'preUrl'
 
@@ -53,6 +57,8 @@ const App = () => {
                         <Route exact path={"/login"} component={LoginPage} />
                         <Route exact path={"/register"} component={RegisterPage} />
                         <Route exact path={"/forgotpassword"} component={ForgotPassword} />
+                        <Route exact path={"/reset-password"} component={ResetPassword} />
+                        <Route exact path={"/confirm"} component={ActivateAccount} />
                         <Route path={"*"} render={() => {
                             if (location.pathname !== '/')
                                 localStorage.setItem(PRE_URL, location.pathname)
@@ -60,9 +66,9 @@ const App = () => {
                         }} />
                     </Switch>) :
                     (user && (user?.status === USER_STATUS.UNACTIVATED ?
-                        <Route path={"*"} component={PageNotFound} />
+                        <Route path={"*"} render={() => <SendEmail email={user.email} isAuth={true} />} />
                         : user?.status === USER_STATUS.BANNED ?
-                            <Route path={"*"} component={PageNotFound} />
+                            <Route path={"*"} component={BannedPage} />
                             : (
                                 <Layout>
                                     {ListRouter.map((route, index) => (

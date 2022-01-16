@@ -25,6 +25,18 @@ export const logout = () => {
     return api.post(BASE_URL + "logout")
 }
 
-export const forgotpassword=()=>{
-    return api.get("/forgotpassword")
+export const sendVerificationEmail = (email: string) => {
+    return api.post(BASE_URL + "verification", { email })
+}
+
+export const forgotPassword = (email: string) => {
+    return api.post(BASE_URL + "forgot-password", { email })
+}
+
+export const activateAccount = (token: string) => {
+    return api.post(BASE_URL + `activate?token=${token}`)
+}
+
+export const resetPassword = (token: string, newPassword: string) => {
+    return api.post(BASE_URL + `reset-password?token=${token}`, { newPassword })
 }

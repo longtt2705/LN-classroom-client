@@ -71,65 +71,68 @@ export default function ForgotPassword() {
     const email = useValidator("email", emailValidation, "", validatorFields)
     const handleOnChange = validatorFields.handleOnChange
     const hasError = validatorFields.hasError()
-    const [isSubmit,setIsSubmit]=useState(false)
-    const [emailValue,setEmailValue]=useState("")
-    const history=useHistory()
+    const [isSubmit, setIsSubmit] = useState(false)
+    const [emailValue, setEmailValue] = useState("")
+    const history = useHistory()
 
-    const handleSubmit=()=>{
-        const payload = validatorFields.getValuesObject()
-        setEmailValue(payload.email)
-        setIsSubmit(true)
+    const handleSubmit = () => {
+        validatorFields.validate()
+        if (!validatorFields.hasError()) {
+            const payload = validatorFields.getValuesObject()
+            setEmailValue(payload.email)
+            setIsSubmit(true)
+        }
     }
 
-    const handleBack=()=>{
+    const handleBack = () => {
         history.push(`/signin`)
     }
 
     return (
-        
+
         <ThemeProvider theme={theme}>
             {
-                !isSubmit?
-                (
-                    <HorizontalCenterContainer>
-                <CardComponent sx={{ boxShadow: 3 }}>
-                    <EmailText>Please input your email registed:</EmailText>
-                    <EmailInput
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Email"
-                        autoComplete="email"
-                        error={email.hasError()}
-                        helperText={email.error}
-                        onChange={handleOnChange(email)}
-                        onBlur={() => email.validate()}
-                    />
-                    <ButtonComponent>
-                        <SubmitButton
-                            variant="contained"
-                            color="success"
-                            disabled={hasError}
-                            onClick={handleSubmit}
-                        >
-                            Submit
-                        </SubmitButton>
-                        <BackToHome
-                            variant="contained"
-                            color="primary"
-                            onClick={handleBack}
-                        >
-                            Back to home
-                        </BackToHome>
-                    </ButtonComponent>
-                </CardComponent>
-            </HorizontalCenterContainer>
-                ):
-                (
-                    <SendEmail email={emailValue}/>
-                )
+                !isSubmit ?
+                    (
+                        <HorizontalCenterContainer>
+                            <CardComponent sx={{ boxShadow: 3 }}>
+                                <EmailText>Please input your email registed:</EmailText>
+                                <EmailInput
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    label="Email"
+                                    autoComplete="email"
+                                    error={email.hasError()}
+                                    helperText={email.error}
+                                    onChange={handleOnChange(email)}
+                                    onBlur={() => email.validate()}
+                                />
+                                <ButtonComponent>
+                                    <SubmitButton
+                                        variant="contained"
+                                        color="success"
+                                        disabled={hasError}
+                                        onClick={handleSubmit}
+                                    >
+                                        Submit
+                                    </SubmitButton>
+                                    <BackToHome
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleBack}
+                                    >
+                                        Back to home
+                                    </BackToHome>
+                                </ButtonComponent>
+                            </CardComponent>
+                        </HorizontalCenterContainer>
+                    ) :
+                    (
+                        <SendEmail email={emailValue} isAuth={false} />
+                    )
             }
-            
+
         </ThemeProvider>
     )
 }

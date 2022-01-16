@@ -1,8 +1,9 @@
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import { Box, Button, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect } from "react";
 import { useHistory } from 'react-router-dom';
+import { forgotPassword, sendVerificationEmail } from '../../services/auth';
 
 const HorizontalCenterContainer = styled(Box)(({
     display: "flex",
@@ -32,7 +33,8 @@ const IconLetter = styled(MailOutlineIcon)(({ theme }) => ({
 const ConfirmTitle = styled(Typography)(({ theme }) => ({
     fontSize: theme.fontSizes.sizeLabel,
     color: theme.colors.classcode,
-    margin: theme.spacing(3)
+    margin: theme.spacing(3),
+    align: 'center'
 }))
 
 const ConformSent = styled(Typography)(({ theme }) => ({
@@ -53,27 +55,40 @@ const BackToHome = styled(Button)(({ theme }) => ({
     fontSize: theme.fontSizes.changePass
 }))
 
-const SendEmail: FunctionComponent<{ email: string }> = ({ email }) => {
+const SendEmail: FunctionComponent<{ email: string, isAuth: boolean }> = ({ email, isAuth }) => {
     const history = useHistory()
 
     const handleBack = () => {
         history.push(`/signin`)
     }
-    
+
+    useEffect(() => {
+        isAuth ? sendVerificationEmail(email) : forgotPassword(email)
+    }, [isAuth, email])
+
     return (
         <HorizontalCenterContainer>
             <CardComponent sx={{ boxShadow: 3 }}>
                 <IconLetter />
-                <ConfirmTitle>Confirm your email address</ConfirmTitle>
+                {isAuth ?
+                    <ConfirmTitle align='center'>Your account has not been activated</ConfirmTitle>
+                    : <ConfirmTitle align='center'>Confirm your email address</ConfirmTitle>
+                }
+
                 <ConformSent>Confirmation email has been send to:</ConformSent>
                 <EmailText>{email}</EmailText>
-                <BackToHome
-                    variant="contained"
-                    color="primary"
-                    onClick={handleBack}
-                >
-                    Back to home
-                </BackToHome>
+                {
+                    !isAuth && (
+                        <BackToHome
+                            variant="contained"
+                            color="primary"
+                            onClick={handleBack}
+                        >
+                            Back to home
+                        </BackToHome>
+                    )
+                }
+
             </CardComponent>
         </HorizontalCenterContainer>
     )

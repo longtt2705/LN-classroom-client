@@ -141,7 +141,7 @@ export const GradeStructurePage: FunctionComponent<GradeStructureProps> = ({ gra
     const handleEditGrade = async (classId: string, gradeStructureId: string, title: string, description: string, point: number) => {
         try {
             await updateGradeStructureDetail(classId, gradeStructureId, title, description, point)
-
+            dispatch(getClassroom(classId))
         } catch (err) {
             dispatch(createAlert({
                 message: ERROR_MESSAGE,

@@ -4,6 +4,7 @@ export interface Colors {
         pageBackground: string,
         white: string,
         structBackGround:string,
+        notify:string,
     },
     texting: {
         sideBarLabel: string,
@@ -21,6 +22,7 @@ const colors = {
         pageBackground: "#f0f2f5",
         white: "#fff",
         structBackGround:"#aeb1b6",
+        notify:"#eeeee4",
     },
     texting: {
         sideBarLabel: '#5f6368',

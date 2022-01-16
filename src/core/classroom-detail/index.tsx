@@ -15,6 +15,9 @@ import { GradeStructurePage } from "../grade-structure";
 import MainStream from "./components/main-stream";
 import People from "./components/people";
 import GradeStructPoint from '../grade-structure-point';
+import NotifyReviewPoint from "../notify-review-point"
+
+
 
 const ClassroomDetail: FunctionComponent = () => {
     const { id } = useParams<{ id: string }>()
@@ -71,6 +74,7 @@ const ClassroomDetail: FunctionComponent = () => {
                                         )
                                     }
                                     <Tab label="Grade Board" value="4" key={4}/>
+                                    <Tab label="Notify Review Point" value="5" key={5}/>
                                 </TabList>
                             </HorizontalCenterContainer>
                         </Box>
@@ -82,6 +86,7 @@ const ClassroomDetail: FunctionComponent = () => {
                             )
                         }
                         <TabPanel value="4" key={4}><GradeStructPoint classroom={classroom} role={role} /></TabPanel>
+                        <TabPanel value="5" key={5}><NotifyReviewPoint/></TabPanel>
                     </TabContext>
                 </Route>
             </Switch>

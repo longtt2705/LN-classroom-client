@@ -88,3 +88,8 @@ export const updateGradeBoard = (classId: string, gradeDetailId: string, data: a
 export const updateStudentPoint = (classId: string, gradeDetailId: string, data: { point: number, studentId: string }) => {
     return api.patch(`${BASE_URL}${classId}/grade-board/${gradeDetailId}`, { data })
 }
+
+
+export const addReviewPoint=(classId:string,data:{idHomework:string,idStudent:string,pointReview:number,explain:string,title:string})=>{
+    return api.post(`${BASE_URL}${classId}/review-point/${data.idHomework}/${data.idStudent}`,{data})
+}

@@ -11,17 +11,17 @@ import Grid from '@mui/material/Grid';
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { noop } from 'lodash';
 import * as React from 'react';
+import GoogleLogin from 'react-google-login';
 import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import SignInImage from '../../public/images/signin-classroom.jpg';
 import { ERROR_MESSAGE, LOGIN_FAILED } from '../../shared/messages';
+import { createAlert } from '../../slices/alert-slice';
 import { loginUser, loginUserWithGoogle } from '../../slices/user-slice';
 import { VerticalCenterContainer } from '../components/container';
 import OAuthButton, { Provider } from '../components/oauth-button';
-import GoogleLogin from 'react-google-login';
-import { noop } from 'lodash';
-import { createAlert } from '../../slices/alert-slice';
 
 const theme = createTheme();
 

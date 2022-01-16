@@ -29,7 +29,7 @@ instance.interceptors.response.use(
                     return instance(originalConfig);
                 } catch (_error) {
                     const pathName = getLocation(window.location.href).pathname
-                    if (pathName !== '/login' && pathName !== '/register') {
+                    if (pathName !== '/login' && pathName !== '/register' && pathName !== '/reset-password') {
                         window.location.href = '/login'
                     }
                     return Promise.reject(_error);

@@ -1,38 +1,37 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React, { FunctionComponent } from "react";
-import { emailValidation, onlyNumberValidation,useValidator, useValidatorManagement } from "../../../utils/validator";
+import { useAppDispatch } from "../../../app/hooks";
+import { addReviewPoint } from "../../../services/classroom";
+import { ERROR_MESSAGE, SEND_REVIEW_POINT_SUCCESS } from "../../../shared/messages";
+import { createAlert } from "../../../slices/alert-slice";
+import { onlyNumberValidation, useValidator, useValidatorManagement } from "../../../utils/validator";
 
-
-
-const HorizontalCenterContainer = styled(Box)(({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-}));
 
 const CardComponent = styled(Box)(({ theme }) => ({
-    height: theme.spacing(40),
-    width: theme.spacing(80),
+    height: theme.spacing(120),
+    width: theme.spacing(150),
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
+
     alignItems: "center",
     borderRadius: theme.spacing(2.5),
-    position: "relative"
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    background: theme.colors.background.white
 }))
 
 const EmailText = styled(Typography)(({ theme }) => ({
     fontSize: theme.fontSizes.sizeLabel,
     color: theme.colors.classcode,
-    margin: theme.spacing(1)
+    marginBottom: theme.spacing(3)
 }))
 
 const PointReview = styled(TextField)(({ theme }) => ({
     width: "90%",
-    height: theme.spacing(10)
+    marginTop: theme.spacing(5),
 }))
 
 const ButtonComponent = styled(Box)(({ theme }) => ({
@@ -42,74 +41,87 @@ const ButtonComponent = styled(Box)(({ theme }) => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    position: "absolute",
-    bottom: theme.spacing(2),
-}))
 
-const BackToHome = styled(Button)(({ theme }) => ({
-    width: theme.spacing(25),
-    height: theme.spacing(6),
-    fontWeight: "bold",
-    fontSize: theme.fontSizes.changePass,
-    borderRadius:theme.spacing(2)
 }))
 
 const SubmitButton = styled(Button)(({ theme }) => ({
     width: theme.spacing(25),
-    height: theme.spacing(6),
+    height: theme.spacing(10),
     fontWeight: "bold",
     fontSize: theme.fontSizes.changePass,
-    borderRadius:theme.spacing(2)
+    borderRadius: theme.spacing(2)
 }))
 
-const Description = styled(TextField)(({theme})=>({
-    width:"100%",
-    height:theme.spacing(10),
-    marigin:theme.spacing(1),
+const Description = styled(TextField)(({ theme }) => ({
+    width: "90%",
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(5)
 }))
 
-const ForgotPassword: FunctionComponent = () => {
+const ReviewPoint: FunctionComponent<{ classId: string, idStudent: string, idHomework: string, nameHomework: string }> = ({ classId, idStudent, idHomework, nameHomework }) => {
     const validatorFields = useValidatorManagement()
     const point = useValidator("point", onlyNumberValidation, "", validatorFields)
     const handleOnChange = validatorFields.handleOnChange
     const hasError = validatorFields.hasError()
+    const dispatch = useAppDispatch()
+    const description = useValidator("description", null, "", validatorFields)
+
+    const handleSubmit = async () => {
+        try {
+            validatorFields.validate()
+            if (!validatorFields.hasError()) {
+                const payload = validatorFields.getValuesObject()
+                dispatch(createAlert({
+                    message: SEND_REVIEW_POINT_SUCCESS,
+                    severity: "success"
+                }))
+                await addReviewPoint(classId, { idHomework: idHomework, idStudent: idStudent, pointReview: parseFloat(payload.point), explain: payload.description, title: nameHomework })
+            }
+        } catch (err) {
+            dispatch(createAlert({
+                message: ERROR_MESSAGE,
+                severity: "error"
+            }))
+        }
+    }
 
     return (
-        <HorizontalCenterContainer>
-            <CardComponent sx={{ boxShadow: 3 }}>
-                <EmailText>Review Point</EmailText>
-                <EmailText>Homework name</EmailText>
-                <PointReview
-                    required
-                    fullWidth
-                    label="Point you want"
-                    autoComplete="point"
-                    error={point.hasError()}
-                    helperText={point.error}
-                    onChange={handleOnChange(point)}
-                    onBlur={() => point.validate()}
-                />
-                <Description  
+        <CardComponent sx={{ boxShadow: 3 }}>
+            <EmailText>Review Point</EmailText>
+            <PointReview
+                disabled
+                fullWidth
+                label="Title Homework"
+                value={nameHomework}
+            />
+            <PointReview
+                required
+                label="Point you want"
+                autoComplete="point"
+                error={point.hasError()}
+                helperText={point.error}
+                onChange={handleOnChange(point)}
+                onBlur={() => point.validate()}
+            />
+            <Description
+                label="Explain"
                 autoComplete="description"
-                />
-                <ButtonComponent>
-                    <SubmitButton
-                        variant="contained"
-                        color="success"
-                        disabled={hasError}
-                    >
-                        Send
-                    </SubmitButton>
-                    <BackToHome
-                        variant="contained"
-                        color="primary"
-                    >
-                        Back
-                    </BackToHome>
-                </ButtonComponent>
-            </CardComponent>
-        </HorizontalCenterContainer>
+                multiline
+                rows={5}
+                onChange={handleOnChange(description)}
+            />
+            <ButtonComponent>
+                <SubmitButton
+                    variant="contained"
+                    color="success"
+                    disabled={hasError}
+                    onClick={handleSubmit}
+                >
+                    Send
+                </SubmitButton>
+            </ButtonComponent>
+        </CardComponent>
     )
 }
 
-export default ForgotPassword;
+export default ReviewPoint;

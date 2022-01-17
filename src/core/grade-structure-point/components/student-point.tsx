@@ -212,7 +212,7 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
                                                             aria-labelledby="modal-modal-title"
                                                             aria-describedby="modal-modal-description"
                                                         >
-                                                            <ReviewPoint idStudent={user!.studentId!} idHomework={homework._id!} nameHomework={homework.title} classId={classroom._id!} />
+                                                            <ReviewPoint idStudent={user!._id!} idHomework={homework._id!} classId={classroom._id!} setOpen={setOpen}/>
                                                         </Modal>
                                                     </TableRow>
                                                 ))}

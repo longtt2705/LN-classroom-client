@@ -12,10 +12,10 @@ import { selectRoute } from "../../slices/route-slice";
 import { HorizontalCenterContainer } from "../components/container";
 import PageNotFound from "../components/page-not-found";
 import { GradeStructurePage } from "../grade-structure";
+import GradeStructPoint from '../grade-structure-point';
+import ListPostReviewPoint from '../list-post-review';
 import MainStream from "./components/main-stream";
 import People from "./components/people";
-import GradeStructPoint from '../grade-structure-point';
-import NotifyReviewPoint from "../notify-review-point"
 
 
 
@@ -74,7 +74,7 @@ const ClassroomDetail: FunctionComponent = () => {
                                         )
                                     }
                                     <Tab label="Grade Board" value="4" key={4}/>
-                                    <Tab label="Notify Review Point" value="5" key={5}/>
+                                    <Tab label="Review" value="5" key={5}/>
                                 </TabList>
                             </HorizontalCenterContainer>
                         </Box>
@@ -86,7 +86,7 @@ const ClassroomDetail: FunctionComponent = () => {
                             )
                         }
                         <TabPanel value="4" key={4}><GradeStructPoint classroom={classroom} role={role} /></TabPanel>
-                        <TabPanel value="5" key={5}><NotifyReviewPoint/></TabPanel>
+                        <TabPanel value="5" key={5}><ListPostReviewPoint role={role} classId={classroom._id!}/></TabPanel>
                     </TabContext>
                 </Route>
             </Switch>

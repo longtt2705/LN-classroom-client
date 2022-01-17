@@ -1,3 +1,4 @@
+import { Title } from "@mui/icons-material";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React, { FunctionComponent } from "react";
@@ -5,7 +6,7 @@ import { useAppDispatch } from "../../../app/hooks";
 import { addReviewPoint } from "../../../services/classroom";
 import { ERROR_MESSAGE, SEND_REVIEW_POINT_SUCCESS } from "../../../shared/messages";
 import { createAlert } from "../../../slices/alert-slice";
-import { onlyNumberValidation, useValidator, useValidatorManagement } from "../../../utils/validator";
+import { notEmptyValidation, onlyNumberValidation, useValidator, useValidatorManagement } from "../../../utils/validator";
 
 
 const CardComponent = styled(Box)(({ theme }) => ({
@@ -13,7 +14,6 @@ const CardComponent = styled(Box)(({ theme }) => ({
     width: theme.spacing(150),
     display: "flex",
     flexDirection: "column",
-
     alignItems: "center",
     borderRadius: theme.spacing(2.5),
     position: 'absolute',
@@ -54,13 +54,14 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 const Description = styled(TextField)(({ theme }) => ({
     width: "90%",
-    marginTop: theme.spacing(5),
+    marginTop: theme.spacing(5),  
     marginBottom: theme.spacing(5)
 }))
 
-const ReviewPoint: FunctionComponent<{ classId: string, idStudent: string, idHomework: string, nameHomework: string }> = ({ classId, idStudent, idHomework, nameHomework }) => {
+const ReviewPoint: FunctionComponent<{ classId: string, idStudent: string, idHomework: string,setOpen:any}> = ({ classId, idStudent, idHomework,setOpen }) => {
     const validatorFields = useValidatorManagement()
     const point = useValidator("point", onlyNumberValidation, "", validatorFields)
+    const title=useValidator("title", notEmptyValidation, "", validatorFields)
     const handleOnChange = validatorFields.handleOnChange
     const hasError = validatorFields.hasError()
     const dispatch = useAppDispatch()
@@ -71,11 +72,12 @@ const ReviewPoint: FunctionComponent<{ classId: string, idStudent: string, idHom
             validatorFields.validate()
             if (!validatorFields.hasError()) {
                 const payload = validatorFields.getValuesObject()
+                await addReviewPoint(classId, { idHomework: idHomework, idStudent: idStudent, pointReview: parseFloat(payload.point), explain: payload.description, title: payload.title })
                 dispatch(createAlert({
                     message: SEND_REVIEW_POINT_SUCCESS,
                     severity: "success"
                 }))
-                await addReviewPoint(classId, { idHomework: idHomework, idStudent: idStudent, pointReview: parseFloat(payload.point), explain: payload.description, title: nameHomework })
+                setOpen(false)
             }
         } catch (err) {
             dispatch(createAlert({
@@ -89,10 +91,12 @@ const ReviewPoint: FunctionComponent<{ classId: string, idStudent: string, idHom
         <CardComponent sx={{ boxShadow: 3 }}>
             <EmailText>Review Point</EmailText>
             <PointReview
-                disabled
                 fullWidth
+                error={title.hasError()}
                 label="Title Homework"
-                value={nameHomework}
+                onChange={handleOnChange(title)}
+                onBlur={() => title.validate()}
+                helperText={title.error}
             />
             <PointReview
                 required

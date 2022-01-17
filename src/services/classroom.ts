@@ -93,3 +93,19 @@ export const updateStudentPoint = (classId: string, gradeDetailId: string, data:
 export const addReviewPoint = (classId: string, data: { idHomework: string, idStudent: string, pointReview: number, explain: string, title: string }) => {
     return api.post(`${BASE_URL}${classId}/review-point/${data.idHomework}/${data.idStudent}`, { data })
 }
+
+export const getReviewPostsStudent = (classId: string, idStudent: string) => {
+    return api.get(`${BASE_URL}${classId}/${idStudent}/posts`)
+}
+
+export const getPostById = (classId: string, idPost: string) => {
+    return api.get(`${BASE_URL}${classId}/posts/${idPost}`)
+}
+
+export const addCommentByPostId = (classId: string, data: { idPost: string, idPerson: string, content: string }) => {
+    return api.patch(`${BASE_URL}${classId}/posts/comment/${data.idPost}`, { ...data })
+}
+
+export const getPostByClassId = (classId: string) => {
+    return api.get(`${BASE_URL}${classId}/posts`)
+}

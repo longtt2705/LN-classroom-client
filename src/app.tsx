@@ -23,6 +23,7 @@ import BannedPage from './core/components/banned';
 import SendEmail from './core/forgot-password/sendEmail';
 import ActivateAccount from './core/activate-account';
 import ResetPassword from './core/reset-password';
+import PostReviewPoint from './core/post-review-point';
 
 const PRE_URL = 'preUrl'
 
@@ -81,10 +82,11 @@ const App = () => {
                                             )}
                                         />
                                     ))}
-                                    <Route path={"/classrooms/:id"} component={ClassroomDetail} />
+                                    <Route exact path={"/classrooms/:id"} component={ClassroomDetail} />
                                     <Route exact path={"/invite/:token"} component={Invitation} />
                                     <Route exact path={"/profile"} component={UserProfile} />
                                     <Route exact path={"/users/students/:studentId"} component={UserProfileMapping} />
+                                    <Route exact path={"/classrooms/:classId/posts/:idPost"} component={PostReviewPoint} />
                                     <Route path={"*"} component={PageNotFound} />
                                 </Layout>
                             )

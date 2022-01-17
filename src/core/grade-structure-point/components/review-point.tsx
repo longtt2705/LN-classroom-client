@@ -1,11 +1,12 @@
-import { Title } from "@mui/icons-material";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React, { FunctionComponent } from "react";
-import { useAppDispatch } from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { addReviewPoint } from "../../../services/classroom";
+import { Post, sendCreatePostAction } from "../../../services/socket";
 import { ERROR_MESSAGE, SEND_REVIEW_POINT_SUCCESS } from "../../../shared/messages";
 import { createAlert } from "../../../slices/alert-slice";
+import { Classroom } from "../../../slices/classroom-slice";
 import { notEmptyValidation, onlyNumberValidation, useValidator, useValidatorManagement } from "../../../utils/validator";
 
 
@@ -54,30 +55,41 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 const Description = styled(TextField)(({ theme }) => ({
     width: "90%",
-    marginTop: theme.spacing(5),  
+    marginTop: theme.spacing(5),
     marginBottom: theme.spacing(5)
 }))
 
-const ReviewPoint: FunctionComponent<{ classId: string, idStudent: string, idHomework: string,setOpen:any}> = ({ classId, idStudent, idHomework,setOpen }) => {
+const ReviewPoint: FunctionComponent<{ classroom: Classroom, idStudent: string, idHomework: string, currentPoint: number, onClose: any }> = ({ classroom, idStudent, idHomework, currentPoint, onClose }) => {
     const validatorFields = useValidatorManagement()
     const point = useValidator("point", onlyNumberValidation, "", validatorFields)
-    const title=useValidator("title", notEmptyValidation, "", validatorFields)
+    const title = useValidator("title", notEmptyValidation, "", validatorFields)
     const handleOnChange = validatorFields.handleOnChange
     const hasError = validatorFields.hasError()
     const dispatch = useAppDispatch()
     const description = useValidator("description", null, "", validatorFields)
+    const socket = useAppSelector(state => state.socketSlice.socket)
+    const user = useAppSelector(state => state.userReducer.user)
 
     const handleSubmit = async () => {
         try {
             validatorFields.validate()
             if (!validatorFields.hasError()) {
                 const payload = validatorFields.getValuesObject()
-                await addReviewPoint(classId, { idHomework: idHomework, idStudent: idStudent, pointReview: parseFloat(payload.point), explain: payload.description, title: payload.title })
+                const result = await addReviewPoint(classroom._id!, {
+                    idHomework, idStudent, currentPoint, pointReview: parseFloat(payload.point), explain: payload.description, title: payload.title
+                })
                 dispatch(createAlert({
                     message: SEND_REVIEW_POINT_SUCCESS,
                     severity: "success"
                 }))
-                setOpen(false)
+                const post = result.data as Post
+                const receivers = classroom.teachers?.map(teacher => teacher._id!) || []
+                sendCreatePostAction(socket!, {
+                    user: user!,
+                    classroom,
+                    post
+                }, receivers)
+                onClose()
             }
         } catch (err) {
             dispatch(createAlert({

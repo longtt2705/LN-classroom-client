@@ -5,15 +5,16 @@ import { Avatar, Box, Button, Checkbox, CircularProgress, Divider, IconButton, L
 import { styled } from '@mui/material/styles';
 import { round } from 'lodash';
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { useAppDispatch } from '../../../app/hooks';
+import { useHistory } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { appendStudentList, getGradeBoard, updateGradeBoard, updateGradeStructureDetail } from '../../../services/classroom';
+import { sendFinalizeAction } from '../../../services/socket';
 import { ERROR_MESSAGE } from '../../../shared/messages';
 import { createAlert } from '../../../slices/alert-slice';
 import { Classroom, getClassroom, GradeStructureDetail, Role } from '../../../slices/classroom-slice';
 import { parseCSVData } from '../../../utils/csv';
 import { DownloadGradeBoardButton, DownloadGradeTemplateButton, DownloadStudentListTemplateButton } from '../../classroom-detail/components/csv-button';
 import SpinnerLoading from '../../components/spinner-loading';
-import { useHistory } from 'react-router-dom';
 import PointModal from "./modal";
 
 const Root = styled('div')`
@@ -235,7 +236,8 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
     const dispatch = useAppDispatch()
     const [students, setStudents] = useState<any[]>([])
     const history = useHistory()
-
+    const socket = useAppSelector((state) => state.socketSlice.socket)
+    const user = useAppSelector((state) => state.userReducer.user)
 
     const handleDownloadClick = () => {
         setDownloadClick(!downloadClick)
@@ -384,6 +386,15 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
         setMarkLoading({ ...isMarkLoading, [homework._id!]: true })
         try {
             await updateGradeStructureDetail(classId, homework._id!, homework.title, homework.description || "", homework.point, event.target.checked)
+            if (!event.target.checked) {
+                const payload = {
+                    user: user!,
+                    homeworkTitle: homework.title,
+                    classroom
+                }
+                const receivers = classroom.students!.map((student) => student._id!)
+                sendFinalizeAction(socket!, payload, receivers)
+            }
             dispatch(getClassroom(classId))
         } catch (err) {
             dispatch(createAlert({
@@ -548,7 +559,7 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                                             <tr key={inx}>
                                                 <td style={{ minWidth: "100px" }}>
                                                     <StudentIdItem
-                                                    onClick={()=>handleStudentProfileClick(student.studentId)}
+                                                        onClick={() => handleStudentProfileClick(student.studentId)}
                                                     >
                                                         <BoxInfor>
                                                             <StudentName>{student.studentId}</StudentName>
@@ -557,7 +568,7 @@ const GradeBoard: FunctionComponent<{ classroom: Classroom, role: Role }> = ({ c
                                                 </td>
                                                 <td style={{ minWidth: "300px" }}>
                                                     <StudentItem
-                                                    onClick={()=>handleStudentProfileClick(student.studentId)}
+                                                        onClick={() => handleStudentProfileClick(student.studentId)}
                                                     >
                                                         <BoxInfor>
                                                             <PersonAvatar>

@@ -80,18 +80,15 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
     const gradeStructure = (classroom && classroom.gradeStructure)
     const homeworks = gradeStructure?.gradeStructuresDetails || []
     const user = useAppSelector((state) => state.userReducer.user)
-    const [open, setOpen] = React.useState(false);
+    const [isOpenModalPoint, setIsOpenModalPoint] = useState<any>({})
     const [isLoading, setLoading] = useState(false)
     const [student, setStudent] = useState<any>(null)
     const dispatch = useAppDispatch()
 
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
+    const handleOpenModalPoint = (homeworkId: string) => {
+        setIsOpenModalPoint({ ...isOpenModalPoint, [homeworkId]: true })
+    }
+    const handleCloseModalPoint = (homeworkId: string) => setIsOpenModalPoint({ ...isOpenModalPoint, [homeworkId]: false })
 
     useEffect(() => {
         const fetchData = async () => {
@@ -119,6 +116,16 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
             return result ? result.point : "0"
         }
         return "0"
+    }
+
+    const getStudentGradeWithoutFinalized = (homework: GradeStructureDetail) => {
+        if (student) {
+            const result = student.grade.find((grade: any) => {
+                return grade.gradeStructureDetail === homework._id!
+            })
+            return result.point
+        }
+        return 0
     }
 
     const getRealStudentGrade = (homework: GradeStructureDetail) => {
@@ -198,7 +205,7 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
                                                                     {`${getStudentGrade(homework)} (${getRealStudentGrade(homework)})`}                                                        </NamePointHomeWork>
                                                                 {
                                                                     homework.isFinalized && (
-                                                                        <ReviewButton onClick={handleOpen}>
+                                                                        <ReviewButton onClick={() => handleOpenModalPoint(homework._id!)}>
                                                                             <FlagIcon />
                                                                         </ReviewButton>
                                                                     )
@@ -207,12 +214,12 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
 
                                                         </TableCell>
                                                         <Modal
-                                                            open={open}
-                                                            onClose={handleClose}
+                                                            open={isOpenModalPoint[homework._id!]}
+                                                            onClose={() => handleCloseModalPoint(homework._id!)}
                                                             aria-labelledby="modal-modal-title"
                                                             aria-describedby="modal-modal-description"
                                                         >
-                                                            <ReviewPoint idStudent={user!._id!} idHomework={homework._id!} classId={classroom._id!} setOpen={setOpen}/>
+                                                            <ReviewPoint idStudent={user!._id!} idHomework={homework._id!} currentPoint={getStudentGradeWithoutFinalized(homework)} classroom={classroom} onClose={() => handleCloseModalPoint(homework._id!)} />
                                                         </Modal>
                                                     </TableRow>
                                                 ))}

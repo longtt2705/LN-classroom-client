@@ -22,3 +22,7 @@ export const getUserDataById = (id: string) => {
 export const getUserDataByStudentId = (studentId: string) => {
     return api.get(BASE_URL + `students/${studentId}`)
 }
+
+export const fetchNotifications = () => {
+    return api.get(BASE_URL + `notifications`)
+}

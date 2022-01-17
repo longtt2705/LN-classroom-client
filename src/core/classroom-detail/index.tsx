@@ -66,15 +66,15 @@ const ClassroomDetail: FunctionComponent = () => {
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <HorizontalCenterContainer>
                                 <TabList onChange={handleChange} aria-label="lab API tabs example">
-                                    <Tab label="Main Stream" value="1" key={1}/>
-                                    <Tab label="People" value="2" key={2}/>
+                                    <Tab label="Main Stream" value="1" key={1} />
+                                    <Tab label="People" value="2" key={2} />
                                     {
                                         (role !== "student") && (
-                                            <Tab label="Grade Structure" value="3" key={3}/>
+                                            <Tab label="Grade Structure" value="3" key={3} />
                                         )
                                     }
-                                    <Tab label="Grade Board" value="4" key={4}/>
-                                    <Tab label="Review" value="5" key={5}/>
+                                    <Tab label="Grade Board" value="4" key={4} />
+                                    <Tab label="Review" value="5" key={5} />
                                 </TabList>
                             </HorizontalCenterContainer>
                         </Box>
@@ -86,7 +86,7 @@ const ClassroomDetail: FunctionComponent = () => {
                             )
                         }
                         <TabPanel value="4" key={4}><GradeStructPoint classroom={classroom} role={role} /></TabPanel>
-                        <TabPanel value="5" key={5}><ListPostReviewPoint role={role} classId={classroom._id!}/></TabPanel>
+                        <TabPanel value="5" key={5}><ListPostReviewPoint role={role} classId={classroom._id!} /></TabPanel>
                     </TabContext>
                 </Route>
             </Switch>

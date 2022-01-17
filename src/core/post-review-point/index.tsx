@@ -1,15 +1,18 @@
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React, { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
-import { getPostById } from '../../services/classroom';
+import { fetchClassroomRole, getPostById } from '../../services/classroom';
+import { Post } from '../../services/socket';
 import { getUserDataById } from '../../services/user';
 import { ERROR_MESSAGE } from '../../shared/messages';
 import { createAlert } from '../../slices/alert-slice';
+import { Role } from '../../slices/classroom-slice';
 import SpinnerLoading from '../components/spinner-loading';
 import Comment from "./comment";
+import PostModal from './modal';
 import CommentInput from "./user-comment";
 
 const HorizontalCenterContainer = styled(Box)(({
@@ -32,7 +35,8 @@ const CardPost = styled(Box)(({ theme }) => ({
     paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(3),
     paddingLeft: theme.spacing(5),
-    borderRadius: theme.spacing(5)
+    borderRadius: theme.spacing(5),
+    position: "relative",
 }))
 
 const AvatarAndName = styled(Box)(({ theme }) => ({
@@ -76,7 +80,6 @@ const BoxPoint = styled(Box)(({ theme }) => ({
     height: theme.spacing(8),
     display: "flex",
     flexDirection: "row",
-    paddingTop: theme.spacing(3)
 }))
 
 const PointText = styled(Typography)(({ theme }) => ({
@@ -105,19 +108,14 @@ const CardCommentComponent = styled(Box)(({ theme }) => ({
     borderRadius: theme.spacing(5)
 }))
 
-interface CommentProps {
-    idPerson: string,
-    content: string,
-}
+const EditPoint = styled(Button)(({ theme }) => ({
+    position: 'absolute',
+    top: theme.spacing(5),
+    right: theme.spacing(3),
+    borderRadius: theme.spacing(3),
+    fontWeight: "bold",
+}))
 
-interface PostProps {
-    idHomework: string,
-    idStudent: string,
-    comments: CommentProps[],
-    pointReview: number,
-    explain: string,
-    title: string,
-}
 
 interface UserProps {
     firstName: string;
@@ -134,17 +132,42 @@ interface UserProps {
 
 const PostReviewPoint: FunctionComponent = () => {
     const { classId, idPost } = useParams<{ classId: string, idPost: string }>()
-    const [postContent, setPostContent] = useState<PostProps>()
+    const [postContent, setPostContent] = useState<Post>()
     const [isLoading, setLoading] = useState(true)
     const [user, setUser] = useState<UserProps>()
+    const [role, setRole] = useState<Role>(Role.STUDENT)
     const dispatch = useAppDispatch()
+
+    const [isOpenModal, setOpenModal] = useState(false)
+    useEffect(() => {
+        const fetchRole = async () => {
+            try {
+                if (classId) {
+                    const respone = await fetchClassroomRole(classId)
+                    setRole(respone.data)
+                }
+            } catch (err) {
+                // ignore
+            }
+
+        }
+        fetchRole()
+    }, [dispatch, classId])
+
+    const handleOpenModalPoint = () => {
+        setOpenModal(true)
+    }
+
+    const handleCloseModalPoint = () => {
+        setOpenModal(false)
+    }
+
     const fetchPostData = useCallback(async () => {
         setLoading(true)
         try {
             const resultPost = await getPostById(classId, idPost)
-            const postResult = resultPost.data as PostProps
+            const postResult = resultPost.data as Post
             setPostContent(postResult)
-
         } catch (err) {
             dispatch(createAlert({
                 message: ERROR_MESSAGE,
@@ -166,7 +189,7 @@ const PostReviewPoint: FunctionComponent = () => {
                 setLoading(true)
 
                 try {
-                    const resultUser = await getUserDataById(postContent.idStudent)
+                    const resultUser = await getUserDataById(postContent.idStudent!)
                     const userData = resultUser.data as UserProps
                     setUser(userData)
                 } catch (err) {
@@ -195,20 +218,52 @@ const PostReviewPoint: FunctionComponent = () => {
                         </AvatarAndName>
                         <ContentComponent>
                             <BoxPoint>
-                                <PointContent>Point Review:</PointContent>
+                                <PointContent>Homework:</PointContent>
+                                <PointText>{postContent!.idHomework!.title}</PointText>
+                            </BoxPoint>
+                            <BoxPoint>
+                                <PointContent>Current point:</PointContent>
+                                <PointText>{postContent!.currentPoint}</PointText>
+                            </BoxPoint>
+                            <BoxPoint>
+                                <PointContent>Point expected:</PointContent>
                                 <PointText>{postContent!.pointReview}</PointText>
+                            </BoxPoint>
+                            <BoxPoint>
+                                <PointContent>Point finalized:</PointContent>
+                                <PointText>{postContent!.finalizedPoint}</PointText>
                             </BoxPoint>
                             <PointContent>Explain:</PointContent>
                             <ContentText>{postContent!.explain}</ContentText>
                         </ContentComponent>
+                        {
+                            (role !== Role.STUDENT) && (
+                                <EditPoint
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleOpenModalPoint}
+                                    disabled={postContent!.isFinalized}
+                                >
+                                    Change Point
+                                </EditPoint>
+                            )
+                        }
+
+                        <PostModal isOpen={isOpenModal} onClose={handleCloseModalPoint}
+                            post={postContent!}
+                            homeworkId={postContent!.idHomework!._id!} studentId={user.studentId!}
+                            classId={classId} refetchPost={fetchPostData}
+                        />
                     </CardPost>
                     <CardCommentComponent>
                         {
-                            postContent!.comments.map((comment, index) => (
+                            postContent!.comments && postContent!.comments.map((comment, index) => (
                                 <Comment key={index} comment={comment} />
                             ))
                         }
-                        <CommentInput classId={classId} idPost={idPost} fetchPostData={fetchPostData}/>
+                        {
+                            !postContent!.isFinalized && <CommentInput classId={classId} post={postContent!} fetchPostData={fetchPostData} />
+                        }
                     </CardCommentComponent>
 
                 </CardComponent>

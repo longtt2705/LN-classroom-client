@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import React, { FunctionComponent, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { addCommentByPostId } from '../../services/classroom';
+import { Post, sendCommentAction } from '../../services/socket';
 import { ERROR_MESSAGE } from '../../shared/messages';
 import { createAlert } from '../../slices/alert-slice';
 import { notEmptyValidation, useValidator, useValidatorManagement } from '../../utils/validator';
@@ -50,13 +51,19 @@ const SendCommentIcon = styled(SendIcon)(({ theme }) => ({
     width: theme.spacing(7)
 }))
 
-const CommentInput: FunctionComponent<{ classId: string, idPost: string, fetchPostData: any }> = ({ classId, idPost, fetchPostData }) => {
+const CommentInput: FunctionComponent<{ classId: string, post: Post, fetchPostData: any }> = ({ classId, post, fetchPostData }) => {
     const user = useAppSelector((state) => state.userReducer.user)
     const validatorFields = useValidatorManagement()
     const content = useValidator("content", notEmptyValidation, "", validatorFields)
     const handleOnChange = validatorFields.handleOnChange
     const dispatch = useAppDispatch()
     const [isLoading, setLoading] = useState(false)
+    const classrooms = useAppSelector((state) => [...state.classroomReducer.enrolledClassrooms, ...state.classroomReducer.teachingClassrooms])
+    const socket = useAppSelector(state => state.socketSlice.socket)
+
+    const filterClassroomByClassId = () => {
+        return classrooms.find((classroom) => classroom._id === classId)!
+    }
 
     const handleSubmit = async () => {
         try {
@@ -64,7 +71,17 @@ const CommentInput: FunctionComponent<{ classId: string, idPost: string, fetchPo
             if (!validatorFields.hasError()) {
                 const payload = validatorFields.getValuesObject()
                 setLoading(true)
-                await addCommentByPostId(classId, { idPost: idPost, idPerson: user!._id!, content: payload.content })
+                await addCommentByPostId(classId, { idPost: post._id!, idPerson: user!._id!, content: payload.content })
+                const classroom = filterClassroomByClassId()
+                let receivers = classroom?.teachers?.map((teacher) => teacher._id!) || []
+                receivers.push(post.idStudent!)
+                receivers = receivers.filter(id => id !== user!._id!)
+
+                sendCommentAction(socket!, {
+                    user: user!,
+                    post,
+                    classroom
+                }, receivers)
                 await fetchPostData()
             }
         } catch (err) {

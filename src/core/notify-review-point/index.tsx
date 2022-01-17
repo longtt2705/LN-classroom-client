@@ -1,6 +1,8 @@
 import { Box, Button, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
+import { useAppSelector } from "../../app/hooks";
+import { Notification } from "../../slices/notification-slice";
 import theme from "../../themes";
 import NotifyReviewPointDetail from "./notify";
 
@@ -10,7 +12,6 @@ const HorizontalCenterContainer = styled(Box)(({
     justifyContent: "center",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-    backgroundColor: theme.colors.background.notify,
 }));
 
 const CardComponent = styled(Box)(({ theme }) => ({
@@ -41,13 +42,6 @@ const ButtonComponent = styled(Box)(({ theme }) => ({
     paddingRight: theme.spacing(2)
 }))
 
-const TypeNotify = styled(Typography)(({ theme }) => ({
-    paddingLeft: theme.spacing(5),
-    marginTop: theme.spacing(5),
-    fontSize: theme.fontSizes.codeclass,
-    fontWeight: "bold"
-}))
-
 const NotifyComponent = styled(Box)(({ theme }) => ({
     width: "100%",
     display: "flex",
@@ -68,24 +62,30 @@ const PostTypeButton = styled(Button)(({ theme }) => ({
 }))
 
 const NotifyReviewPoint: FunctionComponent = () => {
-    const lists = [1, 2, 3, 4, 5]
+    const all = useAppSelector(state => state.notificationSlice.notifications)
+    const unseen = useAppSelector(state => state.notificationSlice.unseenNotifications)
+    const [viewAll, setView] = useState(true)
+
+    const renderListNotifications = (list: Notification[]) => {
+        return list.length > 0 ?
+            list.slice(0).reverse().map((item, index) => (
+                <NotifyReviewPointDetail data={item} key={index} />
+            ))
+            : (<Typography variant="h3">There is no notification</Typography>)
+    }
+
     return (
         <HorizontalCenterContainer>
             <CardComponent>
-                <NotifyText>Notify</NotifyText>
+                <NotifyText>Notifications</NotifyText>
                 <ButtonComponent>
-                    <PostTypeButton variant="contained" color="primary">All</PostTypeButton>
-                    <PostTypeButton variant="contained" color="primary">Not Read</PostTypeButton>
+                    <PostTypeButton variant="contained" color={viewAll ? "primary" : "grey"} onClick={() => setView(true)}>All</PostTypeButton>
+                    <PostTypeButton variant="contained" color={!viewAll ? "primary" : "grey"} onClick={() => setView(false)}>Not Read</PostTypeButton>
                 </ButtonComponent>
-                <TypeNotify>New</TypeNotify>
                 <NotifyComponent>
-                    <NotifyReviewPointDetail />
-                </NotifyComponent>
-                <TypeNotify>Last</TypeNotify>
-                <NotifyComponent>
-                    {lists.map((list, index) => (
-                        <NotifyReviewPointDetail />
-                    ))}
+                    {
+                        renderListNotifications(viewAll ? all : unseen)
+                    }
                 </NotifyComponent>
             </CardComponent>
         </HorizontalCenterContainer>

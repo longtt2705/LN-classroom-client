@@ -17,7 +17,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 import { useHistory } from 'react-router-dom';
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { logout } from '../../services/auth';
 import { USER_STATUS } from '../../shared/constant';
 import { setCreateClassModalOpen } from '../../slices/create-class-modal-sclice';
@@ -96,7 +96,7 @@ const PrimarySearchAppBar: React.FunctionComponent<{ status: USER_STATUS | undef
 
   const history = useHistory()
   const dispatch = useAppDispatch()
-
+  const newNotifications = useAppSelector((state) => state.notificationSlice.unseenNotifications.length)
   const isMenuOpen = Boolean(anchorEl);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -212,10 +212,11 @@ const PrimarySearchAppBar: React.FunctionComponent<{ status: USER_STATUS | undef
                 <>
                   <IconButton
                     size="large"
-                    aria-label="show 17 new notifications"
+                    aria-label="show new notifications"
                     color="inherit"
+                    onClick={() => history.push("/notifications")}
                   >
-                    <Badge badgeContent={17} color="error">
+                    <Badge badgeContent={newNotifications} color="error">
                       <NotificationsIcon />
                     </Badge>
                   </IconButton>

@@ -123,7 +123,7 @@ const StudentPoint: FunctionComponent<{ classroom: Classroom }> = ({ classroom }
             const result = student.grade.find((grade: any) => {
                 return grade.gradeStructureDetail === homework._id!
             })
-            return result.point
+            return result ? result.point : 0
         }
         return 0
     }
